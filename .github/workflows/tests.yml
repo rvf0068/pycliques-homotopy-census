@@ -15,3 +15,10 @@ jobs:
         run: .venv/bin/python scripts/validate.py --stage through6
       - name: Confirm idempotent resume
         run: bash scripts/run.sh through6
+      - name: Preserve baseline run for download
+        uses: actions/upload-artifact@v4
+        with:
+          name: homotopy-census-through6
+          path: runs/through6/
+          if-no-files-found: error
+          retention-days: 90
