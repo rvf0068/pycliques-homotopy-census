@@ -15,6 +15,10 @@ jobs:
         run: .venv/bin/python scripts/validate.py --stage through6
       - name: Confirm idempotent resume
         run: bash scripts/run.sh through6
+      - name: Confirm completed stages are safe to update
+        run: .venv/bin/python scripts/versioning.py
+      - name: Revalidate with exact historical census and upstream revisions
+        run: bash scripts/validate_historical.sh through6
       - name: Preserve baseline run for download
         uses: actions/upload-artifact@v4
         with:
