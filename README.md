@@ -57,6 +57,12 @@ A row may report `DISTINCT` when the **Helly hypothesis is false**, e.g. for the
 
 When `helly_kg=TRUE` and `comparison=DISTINCT`, the runner reconstructs the graph from its recorded graph6 string, recomputes the verdicts, recomputes clique-Helly status and independently invokes the rational homology routine. If the reduced Betti vectors still differ, it writes `runs/<stage>/STOP_COUNTEREXAMPLE.json` and **exits with code 42** before processing the next graph. A subsequent invocation refuses to restart while the witness exists. A discrepancy should be checked independently before publication. The runner also aborts for invariants contradicting the known Helly-graph result.
 
+The consistency checks use two established results: if `G` is Helly,
+then `G` and `K(G)` are homotopy equivalent (Prisner), and `K(G)`
+is also Helly (Escalante). Thus any apparent violation of either known
+implication is a data or implementation fault to investigate, not a
+counterexample to the conjecture being tested.
+
 Both `G` and `K(G)` homotopy classifiers are taken from the pinned `pycombtop` package, including the verified link-attachment, join, s-collapse, and discrete Morse techniques. There are **no extra classification stages**. Changing resource limits requires a new named run rather than mixing old output with new.
 
 ## Summaries and audits
@@ -65,6 +71,11 @@ The validator re-reads the original graph6 source and checks every source index,
 
 ## Literature
 
+- E. Prisner, *Convergence of iterated clique graphs*, Discrete
+  Mathematics **103** (1992), 199–207,
+  [doi:10.1016/0012-365X(92)90270-P](https://doi.org/10.1016/0012-365X(92)90270-P).
+- F. Escalante, *Über iterierte Clique-Graphen*, Abhandlungen aus dem
+  Mathematischen Seminar der Universität Hamburg **39** (1973), 59–68.
 - Brendan D. McKay, [*Graph data*](https://users.cecs.anu.edu.au/~bdm/data/graphs.html), original connected unlabeled graph6 datasets.
 - M. C. Lin and J. L. Szwarcfiter, *Faster recognition of clique-Helly and hereditary clique-Helly graphs*, Information Processing Letters **103** (2007), 40–43. This is the implementation referenced in `pycliques.helly`.
 - R. Forman, *Morse theory for cell complexes*, Advances in Mathematics **134** (1998), 90–145.
