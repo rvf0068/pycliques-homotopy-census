@@ -1,0 +1,9 @@
+.venv
+.deps/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+*.tmp
+.DS_Store
+history/bash_history
