@@ -39,6 +39,60 @@ Each command can be restarted with the **same pinned code and parameters** after
 
 The initial run and tests also run on push through GitHub Actions. **Do not run the 9- and 10-vertex stages on GitHub Actions:** they are potentially resource-intensive; use Codespaces and commit results deliberately.
 
+## Updating `pycliques-project` between completed runs
+
+From the root of the Codespace, run:
+
+```bash
+bash scripts/update_pycliques.sh
+```
+
+This fetches the latest `main` commit of `pycliques-project`, updates
+`config/pycliques_commit.txt`, and runs `scripts/bootstrap.sh` to install
+the newly pinned `pycliques`, `pycombtop`, and `pyg6data`. **It does not
+change any census results**, nor does it automatically commit the new pin.
+After a successful update, record it before starting the next order:
+
+```bash
+git add config/pycliques_commit.txt
+git commit -m "Update pycliques-project pin"
+git push
+```
+
+**Safety condition.** The update command checks *every* started order:
+all expected batches must be complete and their SHA-256 markers valid,
+the run must have a matching validation `summary.json`, and its original
+census scripts and pin must be recoverable from committed Git history.
+An incomplete order, a partial checkpoint, an unvalidated stage, or a
+stopped counterexample blocks the update. Finish and validate the order
+before changing the dependency, even if the next completed batch has not
+started. Never update halfway through order 9 or 10.
+
+**Historical validation.** After an update, the standard validator
+intentionally refuses to reinterpret an old run using newer code. To
+validate an earlier stage using its *original* census scripts and
+`pycliques-project` dependencies, run:
+
+```bash
+bash scripts/validate_historical.sh through6
+bash scripts/validate_historical.sh 7
+# Similarly for 8, 9, or 10
+```
+
+The command looks up the recorded runner SHA-256 in Git history,
+checks out that exact census version in an isolated Git worktree,
+checks out the original upstream SHA in another worktree when needed,
+and uses its frozen `uv.lock` to restore the dependency environment.
+Only the specified run's results directory is linked into the historical
+workspace. It does **not** switch the current code, pin, or active Python
+environment. Historical worktrees and their virtual environments are
+ignored by Git and may occupy additional disk space.
+
+For this reconstruction to work, commit the runner code and updated pin
+**before** starting each new order. If the Codespace has a shallow Git
+checkout and the old revision cannot be found, fetch full history with
+`git fetch --unshallow` (when applicable).
+
 ## Main table and meaning of verdicts
 
 Each completed batch contains one TSV row per original connected graph, with fields:
