@@ -64,6 +64,7 @@ def validate(stage: str, root: Path = ROOT) -> None:
     recorded = read_manifest(root, stage)
     original_runner = historical_runner_revision(root, recorded)
     original_upstream = recorded["monorepo_commit"]
+    original_python = recorded["python"]
     print(f"Original census runner: {original_runner}", flush=True)
     print(f"Original pycliques-project: {original_upstream}", flush=True)
 
@@ -74,7 +75,21 @@ def validate(stage: str, root: Path = ROOT) -> None:
     current_upstream = root / ".deps" / "pycliques-project"
     if not (current_upstream / ".git").exists():
         raise RuntimeError("Bootstrap pycliques-project first: bash scripts/bootstrap.sh")
-    if git(current_upstream, "rev-parse", "HEAD") == original_upstream:
+    # Reuse the active environment only when its Python patch version agrees
+    # with the recorded run; otherwise isolate even the same upstream commit.
+    current_python = current_upstream / ".venv" / "bin" / "python"
+    current_python_version = (
+        subprocess.check_output(
+            [str(current_python), "-c", "import sys; print(sys.version.split()[0])"],
+            text=True,
+        ).strip()
+        if current_python.exists()
+        else None
+    )
+    if (
+        git(current_upstream, "rev-parse", "HEAD") == original_upstream
+        and current_python_version == original_python
+    ):
         upstream_copy = current_upstream
     else:
         execute([
@@ -97,7 +112,7 @@ def validate(stage: str, root: Path = ROOT) -> None:
 
     # A frozen uv.lock recreates the original dependency environment.
     execute([
-        "uv", "sync", "--frozen", "--no-dev", "--python", "3.11",
+        "uv", "sync", "--frozen", "--no-dev", "--python", original_python,
     ], cwd=upstream_copy)
     python = upstream_copy / ".venv" / "bin" / "python"
     if not python.exists():
