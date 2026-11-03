@@ -1,0 +1,17 @@
+name: Small census and validation
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pin and install research dependencies
+        run: bash scripts/bootstrap.sh
+      - name: Run unit tests
+        run: .venv/bin/python -m unittest discover -s tests -v
+      - name: Run through order 6
+        run: bash scripts/run.sh through6
+      - name: Validate graph order and results
+        run: .venv/bin/python scripts/validate.py --stage through6
+      - name: Confirm idempotent resume
+        run: bash scripts/run.sh through6
