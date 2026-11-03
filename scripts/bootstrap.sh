@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-ROOT="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOURCE="$ROOT/.deps/pycliques-project"
 PIN="$(tr -d '[:space:]' < "$ROOT/config/pycliques_commit.txt")"
 [[ "$PIN" =~ ^[[:xdigit:]]{40}$ ]] || { echo "Invalid 40-character Git pin" >&2; exit 2; }
