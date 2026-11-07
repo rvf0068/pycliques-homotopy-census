@@ -130,14 +130,14 @@ class CheckpointTests(unittest.TestCase):
             raw = fake_run(root, 3)
             snapshot(root, stage_git=False)
             with raw.open("ab") as stream:
-                stream.write(b"10\\t600003\\tBROKEN")
+                stream.write(b"10\t600003\tBROKEN")
             original = raw.read_bytes()
             # This must not fail before the census runner gets the journal.
             self.assertEqual(restore(root), 0)
             self.assertEqual(raw.read_bytes(), original)
             from census import read_partial
             self.assertEqual(len(read_partial(raw, 600000)), 3)
-            self.assertTrue(raw.read_bytes().endswith(b"\\n"))
+            self.assertTrue(raw.read_bytes().endswith(b"\n"))
 
     def test_out_of_range_snapshot_indices_are_rejected(self):
         from audits.order10_checkpoints import bounds
