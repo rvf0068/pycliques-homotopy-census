@@ -1,6 +1,6 @@
 """Order-9 Morse follow-up must never reinterpret historical rows silently."""
 
-import pytest
+import unittest
 
 from audits.resolve_order9_timeouts import (
     DEST,
@@ -38,5 +38,5 @@ def test_followup_results_are_outside_original_runs_directory():
 
 def test_direct_audit_requires_its_isolated_upstream(monkeypatch):
     monkeypatch.delenv("PYCLIQUES_MORSE_CHECKOUT", raising=False)
-    with pytest.raises(RuntimeError, match="run_order9_morse_followup.sh"):
+    with unittest.TestCase().assertRaisesRegex(RuntimeError, "run_order9_morse_followup.sh"):
         verified_morse_revision("0" * 40)
