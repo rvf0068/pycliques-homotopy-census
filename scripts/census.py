@@ -17,6 +17,7 @@ import math
 import os
 import random
 import signal
+import time
 from pathlib import Path
 
 import networkx as nx
@@ -30,6 +31,10 @@ COLUMNS = (
     "status_kg", "htype_kg", "betti_kg", "reason_kg", "comparison",
 )
 COUNTEREXAMPLE_EXIT = 42
+
+
+class _GraphTimeLimit(BaseException):
+    """End one graph cleanly after its whole-graph wall-clock budget."""
 
 
 class _HomotopyTimeLimit(BaseException):
@@ -52,6 +57,33 @@ def homotopy_time_limit(seconds: float):
 
     def alarm(_signum, _frame):
         raise _HomotopyTimeLimit()
+
+    previous_handler = signal.getsignal(signal.SIGALRM)
+    signal.signal(signal.SIGALRM, alarm)
+    previous_timer = signal.setitimer(signal.ITIMER_REAL, seconds)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, *previous_timer)
+        signal.signal(signal.SIGALRM, previous_handler)
+
+
+@contextmanager
+def graph_time_limit(seconds: float):
+    """Apply a soft wall-clock limit to the entire graph classification.
+
+    Do not nest with homotopy_time_limit: the same POSIX timer is shared.
+    Signal delivery in long C calls can be delayed, so this is not a hard
+    real-time guarantee.
+    """
+    if seconds <= 0:
+        yield
+        return
+    if not hasattr(signal, "setitimer"):
+        raise RuntimeError("Graph wall-time budgets require POSIX signal timers")
+
+    def alarm(_signum, _frame):
+        raise _GraphTimeLimit()
 
     previous_handler = signal.getsignal(signal.SIGALRM)
     signal.signal(signal.SIGALRM, alarm)
@@ -136,18 +168,45 @@ def comparison(a: dict, b: dict) -> str:
     return "UNRESOLVED"
 
 
-def classify(g6: str, n: int, index: int, limits: dict) -> dict:
-    """Classify a single original connected graph and its clique graph."""
+def graph_timeout_row(g6: str, n: int, index: int, seconds: float) -> dict:
+    """Lossless index entry when a whole-graph budget expires early."""
+    reason = f"Whole-graph wall-time budget of {seconds:g} seconds exceeded"
+    return {
+        "order": n, "index": index, "graph6": g6,
+        "helly_g": "UNKNOWN", "helly_kg": "UNKNOWN", "k_order": "UNKNOWN",
+        "status_g": "LIMITED", "htype_g": "UNKNOWN", "betti_g": "UNKNOWN",
+        "reason_g": reason,
+        "status_kg": "LIMITED", "htype_kg": "UNKNOWN", "betti_kg": "UNKNOWN",
+        "reason_kg": reason,
+        "comparison": "UNRESOLVED",
+    }
+
+
+def classify(
+    g6: str, n: int, index: int, limits: dict, progress: dict | None = None,
+) -> dict:
+    """Classify a connected graph, optionally preserving completed steps.
+
+    A mutable progress row lets the outer wall timer preserve successful
+    G and Helly calculations when a later K(G) calculation times out.
+    """
     from pycliques import clique_graph
     from pycliques.helly import is_clique_helly
 
+    row = progress if progress is not None else {}
+    row.update(graph_timeout_row(g6, n, index, limits.get("max_graph_seconds", 0)))
     g = graph_from_string(g6)
     if len(g) != n or not nx.is_connected(g):
         raise RuntimeError(
             f"Source violates connected graph hypothesis: order={n}, index={index}"
         )
     hg = bool(is_clique_helly(g))
+    row["helly_g"] = str(hg).upper()
     vg = homotopy(g, g6, "G", limits)
+    row.update({
+        "status_g": vg["status"], "htype_g": vg["htype"],
+        "betti_g": vg["betti"], "reason_g": vg["reason"],
+    })
     kg = clique_graph(
         g, bound=limits["max_k_vertices"], max_edges=limits["max_k_edges"]
     )
@@ -156,16 +215,13 @@ def classify(g6: str, n: int, index: int, limits: dict) -> dict:
         hk, k_order = "UNKNOWN", "UNKNOWN"
     else:
         k_order = len(kg)
+        row["k_order"] = k_order
         hk = str(bool(is_clique_helly(kg))).upper()
+        row["helly_kg"] = hk
         if hg and hk != "TRUE":
             raise RuntimeError("Clique-Helly preservation theorem violated")
         if hg and vg["status"] == "EXACT":
-            # Prisner's theorem: if G is clique-Helly, then its clique
-            # complex and the clique complex of K(G) are homotopy
-            # equivalent. Transfer ONLY a certified exact homotopy type;
-            # the conjectural converse (K(G) Helly => equivalence) is NOT
-            # used. The independent Helly test for K(G) is kept as a
-            # consistency check.
+            # Prisner's theorem transfers ONLY exact types when G is Helly.
             vk = {
                 **vg,
                 "reason": (
@@ -176,19 +232,34 @@ def classify(g6: str, n: int, index: int, limits: dict) -> dict:
         else:
             vk = homotopy(kg, g6, "K(G)", limits)
 
-    row = {
-        "order": n, "index": index, "graph6": g6,
-        "helly_g": str(hg).upper(), "helly_kg": hk,
-        "k_order": k_order,
-        "status_g": vg["status"], "htype_g": vg["htype"],
-        "betti_g": vg["betti"], "reason_g": vg["reason"],
+    row.update({
+        "helly_kg": hk, "k_order": k_order,
         "status_kg": vk["status"], "htype_kg": vk["htype"],
         "betti_kg": vk["betti"], "reason_kg": vk["reason"],
         "comparison": comparison(vg, vk),
-    }
+    })
     if row["helly_g"] == "TRUE" and row["helly_kg"] == "FALSE":
         raise RuntimeError("Helly preservation theorem violated; abort")
     return row
+
+
+def classify_with_graph_budget(g6: str, n: int, index: int, limits: dict) -> dict:
+    """Apply one timer to G, K(G), both Helly tests, and both homotopy tests.
+
+    Unlike a per-homotopy limit, this also accounts for clique construction.
+    If interrupted, keep any exact subresult already completed.
+    """
+    seconds = float(limits.get("max_graph_seconds", 0))
+    if seconds <= 0:
+        return classify(g6, n, index, limits)
+    local = dict(limits)
+    local["max_homotopy_seconds"] = 0  # avoid nested SIGALRM timers
+    row = graph_timeout_row(g6, n, index, seconds)
+    try:
+        with graph_time_limit(seconds):
+            return classify(g6, n, index, local, progress=row)
+    except _GraphTimeLimit:
+        return row
 
 
 def witness_if_confirmed(row: dict, limits: dict) -> dict | None:
@@ -301,7 +372,10 @@ def check_completed(gz: Path, done: Path, count: int) -> bool:
     return True
 
 
-def run_order(n: int, run_dir: Path, limits: dict) -> None:
+def run_order(
+    n: int, run_dir: Path, limits: dict, *, deadline: float | None = None,
+    progress_every: int = 10000,
+) -> bool:
     folder = run_dir / f"order{n}"
     for name in ("chunks", "partial", "completed"):
         (folder / name).mkdir(parents=True, exist_ok=True)
@@ -362,13 +436,26 @@ def run_order(n: int, run_dir: Path, limits: dict) -> None:
                     f"Source/index mismatch on resumed order {n}, index {idx}"
                 )
             continue
-        row = classify(g6, n, idx, limits)
+        if deadline is not None and time.monotonic() >= deadline:
+            assert handle is not None
+            handle.flush()
+            os.fsync(handle.fileno())
+            handle.close()
+            print(
+                f"Order {n} paused at index {idx}; partial journal fsynced. "
+                "Resume with the same classification limits.",
+                flush=True,
+            )
+            return False
+        row = classify_with_graph_budget(g6, n, idx, limits)
         assert writer is not None and handle is not None
         writer.writerow(row)
         if (offset + 1) % limits["flush_every"] == 0:
             handle.flush()
             os.fsync(handle.fileno())
 
+        if progress_every and (idx + 1) % progress_every == 0:
+            print(f"order {n}: processed {idx + 1:,} of {total:,} graphs", flush=True)
         if row["helly_kg"] == "TRUE" and row["comparison"] == "DISTINCT":
             handle.flush()
             os.fsync(handle.fileno())
@@ -395,6 +482,7 @@ def run_order(n: int, run_dir: Path, limits: dict) -> None:
         assert gz is not None and done is not None
         write_complete(journal, gz, done, prev_end - current_start + 1)
     print(f"Order {n} complete: {observed} connected graphs", flush=True)
+    return True
 
 
 def main() -> None:
@@ -411,12 +499,26 @@ def main() -> None:
         "--max-homotopy-seconds", type=float, default=0,
         help="Optional POSIX wall-clock limit per homotopy calculation; 0 disables",
     )
+    parser.add_argument(
+        "--max-graph-seconds", type=float, default=0,
+        help="Soft wall-clock budget for all work on one graph; 0 disables",
+    )
+    parser.add_argument(
+        "--max-run-hours", type=float, default=0,
+        help="Gracefully pause after this many session hours; 0 disables. "
+             "May exceed by one graph. May be changed when resuming.",
+    )
+    parser.add_argument(
+        "--progress-every", type=int, default=10000,
+        help="Print progress after this many source graphs (0 disables)",
+    )
     args = parser.parse_args()
     limits = {
         key: getattr(args, key)
         for key in (
             "max_k_vertices", "max_k_edges", "max_ht_vertices",
             "max_ht_simplices", "flush_every", "max_homotopy_seconds",
+            "max_graph_seconds",
         )
     }
     if any(
@@ -427,8 +529,18 @@ def main() -> None:
     ) or (
         limits["max_homotopy_seconds"] < 0
         or not math.isfinite(limits["max_homotopy_seconds"])
+        or limits["max_graph_seconds"] < 0
+        or not math.isfinite(limits["max_graph_seconds"])
+        or args.max_run_hours < 0
+        or not math.isfinite(args.max_run_hours)
+        or args.progress_every < 0
     ):
-        parser.error("Resource limits must be positive; optional timeout >= 0")
+        parser.error("Resource limits must be positive; optional budgets >= 0")
+    if limits["max_graph_seconds"] > 0 and limits["max_homotopy_seconds"] > 0:
+        parser.error(
+            "Choose either --max-graph-seconds or --max-homotopy-seconds, "
+            "not both (they share a POSIX timer)"
+        )
     orders = stage_orders(args.stage)
     run_dir = ROOT / "runs" / (
         "through6" if args.stage == "through6" else f"order{args.stage}"
@@ -438,8 +550,17 @@ def main() -> None:
             "Counterexample witness exists; no automatic continuation permitted"
         )
     check_manifest(run_dir, manifest(orders, limits))
+    deadline = (
+        time.monotonic() + args.max_run_hours * 3600
+        if args.max_run_hours else None
+    )
     for n in orders:
-        run_order(n, run_dir, limits)
+        if not run_order(
+            n, run_dir, limits, deadline=deadline,
+            progress_every=args.progress_every,
+        ):
+            print("Session paused cleanly; full-stage validation not yet possible")
+            return
     print("All requested orders completed; validate with scripts/validate.py")
 
 
