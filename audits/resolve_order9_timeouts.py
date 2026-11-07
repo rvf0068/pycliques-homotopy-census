@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 HISTORY = ROOT / "runs" / "order9"
-DEST = ROOT / "runs" / "order9_morse_followup"
+DEST = ROOT / "followups" / "order9_morse"
 EXPECTED = {
     108411: "H?o~f~}",
     145941: "H?~vf~}",
