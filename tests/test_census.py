@@ -72,6 +72,29 @@ class CensusTests(unittest.TestCase):
             self.assertEqual(result["status_g"], "EXACT")
             self.assertEqual(result["status_kg"], "EXACT")
 
+    def test_helly_shortcut_reuses_exact_type_without_classifying_k(self):
+        """Prisner transfer is used only when G itself is Helly."""
+        k4 = nx.complete_graph(4)
+        encoded = nx.to_graph6_bytes(k4, header=False).decode().strip()
+        with mock.patch.object(census, "homotopy", wraps=census.homotopy) as ht:
+            row = classify(encoded, 4, 0, LIMITS)
+        self.assertEqual(ht.call_count, 1)
+        self.assertEqual(row["status_kg"], "EXACT")
+        self.assertEqual(row["htype_g"], row["htype_kg"])
+        self.assertEqual(row["helly_kg"], "TRUE")
+        self.assertIn("Prisner", row["reason_kg"])
+
+    def test_nonhelly_g_does_not_use_helly_shortcut(self):
+        """K(G) Helly is not enough: that implication is the conjecture."""
+        g = nx.from_graph6_bytes(b"EElw")
+        encoded = nx.to_graph6_bytes(g, header=False).decode().strip()
+        with mock.patch.object(census, "homotopy", wraps=census.homotopy) as ht:
+            row = classify(encoded, 6, 55, LIMITS)
+        self.assertEqual(row["helly_g"], "FALSE")
+        self.assertEqual(row["helly_kg"], "TRUE")
+        self.assertEqual(ht.call_count, 2)
+        self.assertNotIn("Prisner", row["reason_kg"])
+
     def test_octahedral_difference_not_counterexample(self):
         g = nx.octahedral_graph()
         encoded = nx.to_graph6_bytes(g, header=False).decode().strip()
