@@ -1,0 +1,113 @@
+{
+  "manifest": {
+    "data_sha256": {
+      "6": "5e41b93e1c55b742273a3cbb037fdce7755f103d93597d8da3ac28e46ba5d647"
+    },
+    "indexing": "zero based, unchanged source order",
+    "monorepo_commit": "e5d687f479da94c655d7b69297f9e9a4b839719c",
+    "monorepo_lock_sha256": "2182b09581b21a8342727712596c6be8726e61f9408acb1770753f96524c1a16",
+    "networkx": "3.6",
+    "orders": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "packages": {
+      "mogutda": "0.4.6",
+      "pycliques": "0.1.0",
+      "pycombtop": "0.1.0",
+      "pyg6data": "0.1.0"
+    },
+    "python": "3.11.13",
+    "runner_sha256": "d117d2515bcb392b16b12daf0f78054f4f14b9cc2af128ee39636ae4dcdf09e7",
+    "schema": 1,
+    "settings": {
+      "flush_every": 100,
+      "max_ht_simplices": 25000,
+      "max_ht_vertices": 64,
+      "max_k_edges": 5000,
+      "max_k_vertices": 128
+    },
+    "source": "NetworkX atlas (1-5); pyg6data McKay connected files (6-10)"
+  },
+  "orders": [
+    {
+      "counts": {
+        "comparison_EQUIVALENT": 1,
+        "graphs": 1,
+        "helly_g_TRUE": 1,
+        "helly_kg_TRUE": 1,
+        "status_g_EXACT": 1,
+        "status_kg_EXACT": 1
+      },
+      "order": 1,
+      "unresolved": "runs/through6/unresolved_order1.tsv.gz"
+    },
+    {
+      "counts": {
+        "comparison_EQUIVALENT": 1,
+        "graphs": 1,
+        "helly_g_TRUE": 1,
+        "helly_kg_TRUE": 1,
+        "status_g_EXACT": 1,
+        "status_kg_EXACT": 1
+      },
+      "order": 2,
+      "unresolved": "runs/through6/unresolved_order2.tsv.gz"
+    },
+    {
+      "counts": {
+        "comparison_EQUIVALENT": 2,
+        "graphs": 2,
+        "helly_g_TRUE": 2,
+        "helly_kg_TRUE": 2,
+        "status_g_EXACT": 2,
+        "status_kg_EXACT": 2
+      },
+      "order": 3,
+      "unresolved": "runs/through6/unresolved_order3.tsv.gz"
+    },
+    {
+      "counts": {
+        "comparison_EQUIVALENT": 6,
+        "graphs": 6,
+        "helly_g_TRUE": 6,
+        "helly_kg_TRUE": 6,
+        "status_g_EXACT": 6,
+        "status_kg_EXACT": 6
+      },
+      "order": 4,
+      "unresolved": "runs/through6/unresolved_order4.tsv.gz"
+    },
+    {
+      "counts": {
+        "comparison_EQUIVALENT": 21,
+        "graphs": 21,
+        "helly_g_TRUE": 21,
+        "helly_kg_TRUE": 21,
+        "status_g_EXACT": 21,
+        "status_kg_EXACT": 21
+      },
+      "order": 5,
+      "unresolved": "runs/through6/unresolved_order5.tsv.gz"
+    },
+    {
+      "counts": {
+        "comparison_DISTINCT": 1,
+        "comparison_EQUIVALENT": 111,
+        "graphs": 112,
+        "helly_g_FALSE": 4,
+        "helly_g_TRUE": 108,
+        "helly_kg_FALSE": 1,
+        "helly_kg_TRUE": 111,
+        "status_g_EXACT": 112,
+        "status_kg_EXACT": 112
+      },
+      "order": 6,
+      "unresolved": "runs/through6/unresolved_order6.tsv.gz"
+    }
+  ]
+}
