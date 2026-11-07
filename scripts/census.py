@@ -13,6 +13,7 @@ import gzip
 import hashlib
 import io
 import json
+import math
 import os
 import random
 import signal
@@ -31,7 +32,7 @@ COLUMNS = (
 COUNTEREXAMPLE_EXIT = 42
 
 
-class _HomotopyTimeLimit(Exception):
+class _HomotopyTimeLimit(BaseException):
     """Soft Linux/Codespaces timeout of one homotopy classification."""
 
 
@@ -423,7 +424,10 @@ def main() -> None:
             "max_k_vertices", "max_k_edges", "max_ht_vertices",
             "max_ht_simplices", "flush_every",
         )
-    ) or limits["max_homotopy_seconds"] < 0:
+    ) or (
+        limits["max_homotopy_seconds"] < 0
+        or not math.isfinite(limits["max_homotopy_seconds"])
+    ):
         parser.error("Resource limits must be positive; optional timeout >= 0")
     orders = stage_orders(args.stage)
     run_dir = ROOT / "runs" / (
