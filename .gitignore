@@ -7,3 +7,6 @@ __pycache__/
 *.tmp
 .DS_Store
 history/bash_history
+
+# Large resumable order-10 TSV journals remain local, never stage raw data.
+/runs/order10/order10/partial/*.partial.tsv

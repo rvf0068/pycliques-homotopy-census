@@ -24,7 +24,22 @@ if [[ "$STAGE" != "10" && -f "runs/$([[ "$STAGE" == "through6" ]] && printf 'thr
   exit 0
 fi
 
-bash scripts/run.sh "$STAGE" "$@"
+if [[ "$STAGE" == "10" ]]; then
+  # Recover from a checked, committed gzip snapshot when a fresh Codespace
+  # has no local journal. Never replace an existing (possibly newer) TSV.
+  .venv/bin/python audits/order10_checkpoints.py restore
+  if bash scripts/run.sh "$STAGE" "$@"; then
+    # Verify/stage the compressed snapshot BEFORE untracking the large raw TSV.
+    # The local journal is intentionally preserved for immediate resumption.
+    .venv/bin/python audits/order10_checkpoints.py snapshot
+  else
+    status=$?
+    echo "Census exited with status $status; inspect the run before snapshotting." >&2
+    exit "$status"
+  fi
+else
+  bash scripts/run.sh "$STAGE" "$@"
+fi
 
 if [[ "$STAGE" == "10" ]]; then
   # The split report can be generated from completed batches while the
