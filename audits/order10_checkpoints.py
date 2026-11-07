@@ -158,6 +158,21 @@ def ensure_git_tracks_backup(root: Path, files: list[Path], old_journal: Path) -
         )
 
 
+def verified_completed_batch(root: Path, stem: str) -> bool:
+    """Trust a completed batch only when its gzip and marker agree."""
+    start, end = bounds(stem)
+    marker = order_dir(root) / "completed" / (stem + ".done.json")
+    archive = order_dir(root) / "chunks" / (stem + ".tsv.gz")
+    if not marker.is_file():
+        return False
+    if not archive.is_file():
+        raise RuntimeError(f"Completion marker without archive: {stem}")
+    expected = {"rows": end - start + 1, "sha256": checksum(archive)}
+    if json.loads(marker.read_text(encoding="utf-8")) != expected:
+        raise RuntimeError(f"Invalid completed-batch certificate: {stem}")
+    return True
+
+
 def prune_completed(root: Path, *, stage_git: bool = True) -> int:
     """Remove obsolete snapshots only when a completed census batch is verified."""
     destination = snapshot_dir(root)
@@ -166,18 +181,13 @@ def prune_completed(root: Path, *, stage_git: bool = True) -> int:
     removed = []
     for meta in sorted(destination.glob("*.snapshot.json")):
         stem = meta.name.removesuffix(".snapshot.json")
-        start, end = bounds(stem)
-        completed = order_dir(root) / "completed" / (stem + ".done.json")
-        archive = order_dir(root) / "chunks" / (stem + ".tsv.gz")
-        if not completed.is_file():
+        if not verified_completed_batch(root, stem):
             continue
-        if not archive.is_file():
-            raise RuntimeError(f"Completion marker without archive: {stem}")
-        expected = {"rows": end - start + 1, "sha256": checksum(archive)}
-        if json.loads(completed.read_text(encoding="utf-8")) != expected:
-            raise RuntimeError(f"Cannot prune: invalid completion certificate {stem}")
-        _, compressed = verify_snapshot(root, meta)
-        compressed.unlink()
+        # The completed batch supersedes this obsolete backup, even if the
+        # old snapshot itself became corrupted or disappeared. Never block
+        # completed work merely because an obsolete cache is damaged.
+        compressed = destination / (stem + ".partial.tsv.gz")
+        compressed.unlink(missing_ok=True)
         meta.unlink()
         removed.extend([compressed, meta])
     if removed and stage_git:
@@ -200,7 +210,7 @@ def snapshot(root: Path = ROOT, *, stage_git: bool = True) -> dict | None:
     raw = partials[0]
     stem = raw.name.removesuffix(".partial.tsv")
     start, end = bounds(stem)
-    if (order_dir(root) / "completed" / (stem + ".done.json")).exists():
+    if verified_completed_batch(root, stem):
         raise RuntimeError(f"Journal conflicts with a completed batch: {stem}")
     rows = inspect_journal(raw, stem)
     original_sha = checksum(raw)
@@ -278,7 +288,7 @@ def restore(root: Path = ROOT) -> int:
     for meta in records:
         stem = meta.name.removesuffix(".snapshot.json")
         # Do not restore finished work; completed batches are authoritative.
-        if (order_dir(root) / "completed" / (stem + ".done.json")).is_file():
+        if verified_completed_batch(root, stem):
             continue
         info, gz = verify_snapshot(root, meta)
         raw = order_dir(root) / "partial" / (stem + ".partial.tsv")
