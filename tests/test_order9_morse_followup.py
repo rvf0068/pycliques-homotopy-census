@@ -1,10 +1,15 @@
 """Order-9 Morse follow-up must never reinterpret historical rows silently."""
 
+import pytest
+
 from audits.resolve_order9_timeouts import (
+    DEST,
     EXPECTED,
+    ROOT,
     encode,
     historical_rows,
     latex,
+    verified_morse_revision,
 )
 
 
@@ -25,3 +30,13 @@ def test_historical_timeout_rows_have_the_expected_original_graph6():
         assert row["status_kg"] == "LIMITED"
         assert row["htype_kg"] == "UNKNOWN"
         assert row["comparison"] == "UNRESOLVED"
+
+def test_followup_results_are_outside_original_runs_directory():
+    assert DEST == ROOT / "followups" / "order9_morse"
+    assert not DEST.is_relative_to(ROOT / "runs")
+
+
+def test_direct_audit_requires_its_isolated_upstream(monkeypatch):
+    monkeypatch.delenv("PYCLIQUES_MORSE_CHECKOUT", raising=False)
+    with pytest.raises(RuntimeError, match="run_order9_morse_followup.sh"):
+        verified_morse_revision("0" * 40)
