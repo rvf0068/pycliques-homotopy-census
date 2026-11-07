@@ -13,6 +13,10 @@ jobs:
         run: bash scripts/run.sh through6
       - name: Validate graph order and results
         run: .venv/bin/python scripts/validate.py --stage through6
+      - name: Generate root-level non-Helly report from completed results
+        run: |
+          .venv/bin/python reports/non_helly.py --stage through6
+          test -s non_helly_through6.md
       - name: Confirm idempotent resume
         run: bash scripts/run.sh through6
       - name: Confirm completed stages are safe to update
@@ -23,6 +27,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: homotopy-census-through6
-          path: runs/through6/
+          path: |
+            runs/through6/
+            non_helly_through6.md
           if-no-files-found: error
           retention-days: 90
