@@ -385,10 +385,65 @@ Codespace consumes two core-hours for every clock hour it runs; opening
 an idle Codespace can also consume compute allowance. The 16-hour
 example deliberately leaves room for other work, but check the
 current GitHub billing meter before and after each session.
-After any session, consider committing *completed* compressed census
-batches and SHA-256 markers, the current partial journal, and the
-small root index. The journal is committable and resumable; avoid
-running concurrent writers to the same `runs/order10/` directory.
+After any session, commit *completed* compressed census
+batches and SHA-256 markers, the small report indexes, and the **compressed,
+checksummed checkpoint**. Do **not** commit the raw partial TSV: it can
+exceed GitHub's ordinary file-size limit. Avoid running concurrent writers
+to the same `runs/order10/` directory.
+
+#### Converting the first session's large committed journal
+
+The first session committed a nearly 100 MB journal at
+`runs/order10/order10/partial/00600000-00699999.partial.tsv`. After
+merging the checkpoint PR, **before resuming**, run:
+
+~~~bash
+git pull --ff-only
+.venv/bin/python audits/order10_checkpoints.py snapshot
+git status --short
+git commit -m "Store order-10 partial census as a compressed checkpoint"
+git push
+~~~
+
+The snapshot command round-trip verifies the gzip bytes, records the original
+manifest SHA-256 and complete sequential row count, stages the compressed
+`checkpoints/order10/*.partial.tsv.gz` and `*.snapshot.json` files,
+and untracks the old raw TSV using `git rm --cached` **only after**
+verification succeeds. The raw TSV remains on your Codespace disk. The
+command stages only these checkpoint-specific changes; if you have other
+uncommitted changes, examine `git status` and stage them separately. The
+historical commit containing the large blob is left untouched; we do not
+rewrite Git history.
+
+For subsequent sessions, the wrapper runs `restore` before computation and
+`snapshot` after a normal pause or completion. A newly created Codespace
+will restore the exact original TSV from a matching gzip snapshot if the
+local TSV is absent. Existing local TSV data are never overwritten. The
+original 100,000-graph batch, source graph indices, 120-second per-graph
+limit, and dependency pin remain unchanged. If a batch is completed, its
+verified authoritative gzip chunk supersedes the partial snapshot and
+the snapshot is pruned/staged for deletion. The helper never modifies
+`scripts/` or the order-10 manifest.
+
+After a session, check and commit the results:
+
+~~~bash
+.venv/bin/python reports/order10_progress.py
+.venv/bin/python audits/order10_checkpoints.py status
+git add runs/order10/order10/chunks/ runs/order10/order10/completed/ \
+  reports/order10_parts/ reports/order10_exceptions/ \
+  non_helly_order10_index.md order10_exceptions_index.md
+git status --short
+git commit -m "Order-10 census session results and compressed checkpoint"
+git push
+~~~
+
+The raw partial TSV is ignored by Git even if a `git add -A` is used,
+provided the initial `snapshot` migration has untracked the previously
+committed raw file. Do not use `git add -f` to override the ignore rule.
+In an emergency after an abnormal stop, run the standalone `snapshot`
+command once the census process has exited; if the last line is torn,
+first let the existing census runner perform its journal recovery.
 
 When the stage is fully complete, run:
 
