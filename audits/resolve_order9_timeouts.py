@@ -14,11 +14,12 @@ import hashlib
 import io
 import json
 import os
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 HISTORY = ROOT / "runs" / "order9"
-DEST = ROOT / "runs" / "order9_morse_followup"
+DEST = ROOT / "followups" / "order9_morse"
 EXPECTED = {
     108411: "H?o~f~}",
     145941: "H?~vf~}",
@@ -107,6 +108,47 @@ def latex(encoded):
     return r"\(" + r"\vee ".join(parts) + r"\)"
 
 
+def verified_morse_revision(old_pin: str) -> str:
+    """Identify the separately installed Morse code, not the census pin.
+
+    The standalone runner exports the checkout path. Reject an execution
+    using the original census virtualenv or a mismatched upstream checkout.
+    """
+    source = os.environ.get("PYCLIQUES_MORSE_CHECKOUT")
+    if not source:
+        raise RuntimeError(
+            "Use: bash audits/run_order9_morse_followup.sh "
+            "(the original census pin cannot be updated while a stage "
+            "is unvalidated)"
+        )
+    checkout = Path(source).resolve()
+    try:
+        revision = subprocess.check_output(
+            ["git", "-C", str(checkout), "rev-parse", "HEAD"],
+            text=True,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise RuntimeError("Cannot determine isolated Morse checkout revision") from exc
+
+    if len(revision) != 40 or revision == old_pin:
+        raise RuntimeError("The isolated Morse checkout has no newer revision")
+    import pycliques
+    import pycombtop
+
+    expected = {
+        "pycliques": checkout / "packages" / "pycliques" / "src",
+        "pycombtop": checkout / "packages" / "pycombtop" / "src",
+    }
+    for name, module in (("pycliques", pycliques), ("pycombtop", pycombtop)):
+        location = Path(module.__file__).resolve()
+        if not location.is_relative_to(expected[name].resolve()):
+            raise RuntimeError(
+                f"{name} is imported from {location}, not from the "
+                f"isolated checkout {expected[name]}"
+            )
+    return revision
+
+
 def run():
     import networkx as nx
     from pycliques import clique_graph
@@ -115,9 +157,7 @@ def run():
 
     summary, old_rows = historical_rows()
     old_pin = summary["manifest"]["monorepo_commit"]
-    new_pin = (ROOT / "config" / "pycliques_commit.txt").read_text().strip()
-    if not new_pin or new_pin == old_pin:
-        raise RuntimeError("Update the upstream pin AFTER the pycombtop PR is merged")
+    new_pin = verified_morse_revision(old_pin)
     updated = []
     for idx, g6 in sorted(EXPECTED.items()):
         original = old_rows[idx]
