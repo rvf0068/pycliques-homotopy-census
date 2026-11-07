@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import csv
+import signal
 import sys
+import time
 import tempfile
 import unittest
 from itertools import islice
@@ -71,6 +73,55 @@ class CensusTests(unittest.TestCase):
             self.assertEqual(result["comparison"], "EQUIVALENT")
             self.assertEqual(result["status_g"], "EXACT")
             self.assertEqual(result["status_kg"], "EXACT")
+
+    def test_helly_shortcut_reuses_exact_type_without_classifying_k(self):
+        """Prisner transfer is used only when G itself is Helly."""
+        k4 = nx.complete_graph(4)
+        encoded = nx.to_graph6_bytes(k4, header=False).decode().strip()
+        with mock.patch.object(census, "homotopy", wraps=census.homotopy) as ht:
+            row = classify(encoded, 4, 0, LIMITS)
+        self.assertEqual(ht.call_count, 1)
+        self.assertEqual(row["status_kg"], "EXACT")
+        self.assertEqual(row["htype_g"], row["htype_kg"])
+        self.assertEqual(row["helly_kg"], "TRUE")
+        self.assertIn("Prisner", row["reason_kg"])
+
+    def test_nonhelly_g_does_not_use_helly_shortcut(self):
+        """K(G) Helly is not enough: that implication is the conjecture."""
+        g = nx.from_graph6_bytes(b"EElw")
+        encoded = nx.to_graph6_bytes(g, header=False).decode().strip()
+        with mock.patch.object(census, "homotopy", wraps=census.homotopy) as ht:
+            row = classify(encoded, 6, 55, LIMITS)
+        self.assertEqual(row["helly_g"], "FALSE")
+        self.assertEqual(row["helly_kg"], "TRUE")
+        self.assertEqual(ht.call_count, 2)
+        self.assertNotIn("Prisner", row["reason_kg"])
+
+    def test_optional_homotopy_timeout_records_inconclusive(self):
+        """Timeouts must never be reported as contractibility or a wedge."""
+        graph = nx.cycle_graph(5)
+        limits = {**LIMITS, "max_homotopy_seconds": 0.01}
+
+        def too_slow(*_args, **_kwargs):
+            time.sleep(0.2)
+            raise AssertionError("The alarm failed to interrupt the classifier")
+
+        with mock.patch(
+            "pycombtop.homotopy_type.homotopy_type_with_verdict",
+            side_effect=too_slow,
+        ):
+            verdict = census.homotopy(graph, "Dhc", "G", limits)
+        self.assertEqual(verdict["status"], "LIMITED")
+        self.assertEqual(verdict["htype"], "UNKNOWN")
+        self.assertEqual(verdict["betti"], "UNKNOWN")
+        self.assertIn("exceeded", verdict["reason"])
+
+    def test_homotopy_alarm_handler_is_restored_after_exception(self):
+        original = signal.getsignal(signal.SIGALRM)
+        with self.assertRaisesRegex(RuntimeError, "test error"):
+            with census.homotopy_time_limit(1):
+                raise RuntimeError("test error")
+        self.assertEqual(original, signal.getsignal(signal.SIGALRM))
 
     def test_octahedral_difference_not_counterexample(self):
         g = nx.octahedral_graph()

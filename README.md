@@ -39,6 +39,42 @@ Each command can be restarted with the **same pinned code and parameters** after
 
 The initial run and tests also run on push through GitHub Actions. **Do not run the 9- and 10-vertex stages on GitHub Actions:** they are potentially resource-intensive; use Codespaces and commit results deliberately.
 
+## Order-9 performance and optional per-graph time budget
+
+The census uses a pinned `pycombtop` revision which first checks cheap exact
+cone and join certificates before enumerating simplices. If **G itself is
+Helly** and the homotopy type of G is certified exactly, Prisner's theorem
+transfers the result to K(G), saving the second homotopy calculation. The
+independent K(G) Helly test is retained. If only **K(G) is Helly**, the
+homotopy type is still computed independently: the conjecture under
+investigation is never assumed.
+
+To bound a potentially expensive homotopy classification during the much
+larger order-9 run, supply a **per-classification soft wall-time limit**
+(seconds), for example:
+
+```bash
+bash scripts/run.sh 9 --max-homotopy-seconds 120
+.venv/bin/python scripts/validate.py --stage 9
+.venv/bin/python reports/non_helly.py --stage 9
+```
+
+The default `--max-homotopy-seconds 0` disables this timeout.
+The timer runs separately for each invocation of the homotopy classifier
+(G and/or K(G)), not for all stages and not for clique-graph construction.
+It uses POSIX timers, supported in Linux Codespaces. A timed-out
+classification is stored as `LIMITED` with unknown homotopy type and Betti
+numbers; **it is not declared contractible**. The limit is part of the
+stage's immutable provenance manifest, so choose it *before* starting order 9
+and keep it fixed for every resume. If you prefer unrestricted classifications,
+run `bash scripts/run.sh 9` without any extra options.
+
+The CI workflow recomputes all 12,113 connected graphs through order 8 in
+a separate temporary results directory and checks the index, graph6, Helly
+flags, type exactness, reduced Betti numbers, and comparisons against the
+historically committed results. Changes to explanatory theorem strings are
+allowed.
+
 ## Updating `pycliques-project` between completed runs
 
 From the root of the Codespace, run:
