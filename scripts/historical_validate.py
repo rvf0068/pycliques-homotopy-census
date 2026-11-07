@@ -72,6 +72,15 @@ def validate(stage: str, root: Path = ROOT) -> None:
         root, root / ".deps" / "census-history" / original_runner,
         original_runner,
     )
+    # Historical runner commits may already TRACK runs/through6 or order7/8.
+    # A full checkout would then occupy the path needed for our link to the
+    # actual stage being validated. Sparse checkout keeps only the runner
+    # and config in the worktree without modifying or deleting original
+    # committed results (which remain in Git).
+    execute([
+        "git", "-C", str(census_copy), "sparse-checkout", "set",
+        "--cone", "scripts", "config",
+    ])
     current_upstream = root / ".deps" / "pycliques-project"
     if not (current_upstream / ".git").exists():
         raise RuntimeError("Bootstrap pycliques-project first: bash scripts/bootstrap.sh")
