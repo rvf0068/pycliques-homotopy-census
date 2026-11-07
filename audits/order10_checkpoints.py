@@ -283,9 +283,28 @@ def restore(root: Path = ROOT) -> int:
         info, gz = verify_snapshot(root, meta)
         raw = order_dir(root) / "partial" / (stem + ".partial.tsv")
         if raw.exists():
-            # Never overwrite local progress. An existing file may contain
-            # many more rows than the last committed snapshot.
+            # Never overwrite local progress. Require consistency even if
+            # this Codespace has more rows than the committed snapshot.
             inspect_journal(raw, stem)
+            if raw.stat().st_size < info["bytes"]:
+                raise RuntimeError(
+                    f"Local journal is older than the compressed snapshot {stem}. "
+                    "Preserve both and inspect before resuming."
+                )
+            digest = hashlib.sha256()
+            remaining = info["bytes"]
+            with raw.open("rb") as original:
+                while remaining:
+                    block = original.read(min(1024 * 1024, remaining))
+                    if not block:
+                        raise RuntimeError(f"Truncated journal prefix: {stem}")
+                    digest.update(block)
+                    remaining -= len(block)
+            if digest.hexdigest() != info["original_sha256"]:
+                raise RuntimeError(
+                    f"Local journal differs from the saved snapshot {stem}; "
+                    "refusing to overwrite either checkpoint."
+                )
             print(f"Retaining existing local journal {raw}", flush=True)
             continue
         if journals:
