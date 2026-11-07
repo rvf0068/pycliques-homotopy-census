@@ -52,6 +52,11 @@ def fake_run(root: Path, count: int = 5, stem: str = "00600000-00699999") -> Pat
             writer.writerow(row)
     return target
 
+def snapshot_archive(root: Path, stem: str = "00600000-00699999") -> Path:
+    folder = root / "checkpoints" / "order10"
+    meta = json.loads((folder / (stem + ".snapshot.json")).read_text())
+    return folder / meta["archive_name"]
+
 
 class CheckpointTests(unittest.TestCase):
     def test_round_trip_preserves_every_byte_and_avoids_recalculation(self):
@@ -63,10 +68,7 @@ class CheckpointTests(unittest.TestCase):
             self.assertEqual(meta["rows"], 11)
             self.assertEqual(meta["original_sha256"], checksum(raw))
             self.assertTrue(raw.exists(), "Saving must never delete local data")
-            archive = (
-                root / "checkpoints" / "order10" /
-                "00600000-00699999.partial.tsv.gz"
-            )
+            archive = snapshot_archive(root)
             with gzip.open(archive, "rb") as stream:
                 self.assertEqual(stream.read(), original)
             raw.unlink()
@@ -80,10 +82,7 @@ class CheckpointTests(unittest.TestCase):
             root = Path(temp)
             raw = fake_run(root)
             snapshot(root, stage_git=False)
-            archive = (
-                root / "checkpoints" / "order10" /
-                "00600000-00699999.partial.tsv.gz"
-            )
+            archive = snapshot_archive(root)
             archive.write_bytes(b"corruption")
             raw.unlink()
             with self.assertRaisesRegex(RuntimeError, "corrupted"):
@@ -221,7 +220,7 @@ class CheckpointTests(unittest.TestCase):
             done.write_text(json.dumps({
                 "sha256": checksum(chunk), "rows": 100000,
             }))
-            old = root / "checkpoints" / "order10" / "00600000-00699999.partial.tsv.gz"
+            old = snapshot_archive(root)
             old.write_bytes(b"corrupt obsolete backup")
             self.assertEqual(prune_completed(root, stage_git=False), 1)
             self.assertFalse(old.exists())
@@ -247,8 +246,10 @@ class CheckpointTests(unittest.TestCase):
             staged = git("diff", "--cached", "--name-status")
             self.assertIn("D\truns/order10/order10/partial/00600000-00699999.partial.tsv",
                           staged)
-            self.assertIn("A\tcheckpoints/order10/00600000-00699999.partial.tsv.gz",
-                          staged)
+            self.assertIn(
+                "A\t" + snapshot_archive(root).relative_to(root).as_posix(),
+                staged,
+            )
             self.assertIn("A\tcheckpoints/order10/00600000-00699999.snapshot.json",
                           staged)
             self.assertTrue(raw.is_file())
