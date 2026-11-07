@@ -131,9 +131,35 @@ def verify_snapshot(root: Path, meta_path: Path) -> tuple[dict, Path]:
         or info["bytes"] <= 0
     ):
         raise RuntimeError(f"Snapshot manifest/count does not match current run: {stem}")
-    archive = snapshot_dir(root) / (stem + ".partial.tsv.gz")
+    # Older single-name snapshots are understood as read-only backups.
+    # New snapshots use immutable, digest-addressed gzip names: publishing a
+    # new archive never overwrites the bytes referenced by the old metadata.
+    name = info.get("archive_name", stem + ".partial.tsv.gz")
+    allowed = (
+        name == stem + ".partial.tsv.gz"
+        or re.fullmatch(re.escape(stem) + r"\.[0-9a-f]{16}\.partial\.tsv\.gz", name)
+    )
+    if not isinstance(name, str) or not allowed:
+        raise RuntimeError(f"Invalid snapshot archive filename: {name!r}")
+    archive = snapshot_dir(root) / name
     if not archive.is_file() or checksum(archive) != info.get("gzip_sha256"):
         raise RuntimeError(f"Missing or corrupted compressed snapshot: {stem}")
+    # Compressed SHA-256 alone does not prove the original-content metadata
+    # still agrees with the archive. Verify the uncompressed bytes as well.
+    digest = hashlib.sha256()
+    actual_bytes = 0
+    try:
+        with gzip.open(archive, "rb") as original:
+            for block in iter(lambda: original.read(1024 * 1024), b""):
+                digest.update(block)
+                actual_bytes += len(block)
+    except (OSError, EOFError) as exc:
+        raise RuntimeError(f"Invalid compressed snapshot contents: {stem}") from exc
+    if (
+        actual_bytes != info["bytes"]
+        or digest.hexdigest() != info.get("original_sha256")
+    ):
+        raise RuntimeError(f"Original snapshot bytes/checksum mismatch: {stem}")
     return info, archive
 
 
@@ -186,17 +212,27 @@ def prune_completed(root: Path, *, stage_git: bool = True) -> int:
         # The completed batch supersedes this obsolete backup, even if the
         # old snapshot itself became corrupted or disappeared. Never block
         # completed work merely because an obsolete cache is damaged.
-        compressed = destination / (stem + ".partial.tsv.gz")
-        compressed.unlink(missing_ok=True)
+        # Remove the currently referenced snapshot and any older immutable
+        # gzip generations; completion certificates are authoritative.
+        archives = [
+            destination / (stem + ".partial.tsv.gz"),
+            *destination.glob(stem + ".*.partial.tsv.gz"),
+        ]
+        for compressed in archives:
+            compressed.unlink(missing_ok=True)
+            removed.append(compressed)
         meta.unlink()
-        removed.extend([compressed, meta])
+        removed.append(meta)
     if removed and stage_git:
-        relative = [p.relative_to(root).as_posix() for p in removed]
-        subprocess.run(["git", "-C", str(root), "add", "-A", "--", *relative],
-                       check=True)
+        # Stage tracked deletions even when the final snapshot directory is
+        # empty. Also stage any remaining older snapshot paths if present.
+        subprocess.run([
+            "git", "-C", str(root), "add", "-A", "--",
+            snapshot_dir(root).relative_to(root).as_posix(),
+        ], check=True)
     if removed:
-        print(f"Removed {len(removed)//2} obsolete snapshots for completed batches")
-    return len(removed)//2
+        print("Pruned obsolete snapshots for verified completed batches")
+    return sum(p.name.endswith(".snapshot.json") for p in removed)
 
 
 def snapshot(root: Path = ROOT, *, stage_git: bool = True) -> dict | None:
@@ -217,9 +253,12 @@ def snapshot(root: Path = ROOT, *, stage_git: bool = True) -> dict | None:
     size = raw.stat().st_size
     dest = snapshot_dir(root)
     dest.mkdir(parents=True, exist_ok=True)
-    gz = dest / (stem + ".partial.tsv.gz")
     meta = dest / (stem + ".snapshot.json")
-    temp = gz.with_suffix(gz.suffix + ".tmp")
+    # Write an unpublished gzip candidate. Its final filename contains its
+    # compressed digest, so the previous archive survives a crash before
+    # the new metadata is atomically replaced.
+    temp = dest / (stem + ".partial.tsv.gz.tmp")
+    gz = None
     try:
         with temp.open("wb") as compressed:
             with gzip.GzipFile(
@@ -245,14 +284,23 @@ def snapshot(root: Path = ROOT, *, stage_git: bool = True) -> dict | None:
                 restored_bytes += len(block)
         if restored_bytes != size or digest.hexdigest() != original_sha:
             raise RuntimeError("Compressed snapshot failed round-trip verification")
-        os.replace(temp, gz)
+        compressed_sha = checksum(temp)
+        gz = dest / (stem + "." + compressed_sha[:16] + ".partial.tsv.gz")
+        if gz.exists():
+            if checksum(gz) != compressed_sha:
+                raise RuntimeError("Digest-addressed archive collision")
+            temp.unlink()
+        else:
+            os.replace(temp, gz)
     finally:
         temp.unlink(missing_ok=True)
+    assert gz is not None
     info = {
         "schema": 1, "stem": stem, "start": start, "end": end,
         "rows": rows, "bytes": size,
         "original_sha256": original_sha,
-        "gzip_sha256": checksum(gz),
+        "gzip_sha256": compressed_sha,
+        "archive_name": gz.name,
         "manifest_sha256": manifest_hash,
     }
     meta_temp = meta.with_suffix(meta.suffix + ".tmp")
