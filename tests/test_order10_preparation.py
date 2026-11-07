@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import census
 
 from audits.benchmark_order10 import analyze, sample_indices
+from reports.order10_exceptions import process_batch
 from reports.order10_progress import progress
 from reports.order10_split import (
     build_index,
@@ -128,6 +129,31 @@ class Order10PreparationTests(unittest.TestCase):
             self.assertIn("**Non-Helly G:** 12.", index.read_text())
             with self.assertRaisesRegex(RuntimeError, "different input"):
                 render_batch(root, 0, 11, archive, digest, max_bytes=700)
+
+    def test_incomplete_verdicts_have_separate_compressed_index(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive = root / "exception_input.tsv.gz"
+            with gzip.open(archive, "wt", encoding="utf-8", newline="") as stream:
+                writer = csv.DictWriter(
+                    stream, fieldnames=census.COLUMNS, delimiter="\t"
+                )
+                writer.writeheader()
+                row = census.graph_timeout_row("Dhc", 10, 0, 120)
+                row["helly_g"] = "FALSE"
+                writer.writerow(row)
+            digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+            result = process_batch(root, 0, 0, archive, digest)
+            self.assertEqual(result["counts"]["nonexact"], 1)
+            self.assertEqual(result["counts"]["unresolved"], 1)
+            compressed = (
+                root / "reports" / "order10_exceptions" / result["file"]
+            )
+            with gzip.open(compressed, "rt") as stream:
+                rows = list(csv.DictReader(stream, delimiter="\t"))
+            self.assertEqual(rows[0]["graph6"], "Dhc")
+            self.assertEqual(rows[0]["status_kg"], "LIMITED")
+            self.assertEqual(process_batch(root, 0, 0, archive, digest), result)
 
     def test_progress_counts_only_completed_and_durable_journal(self):
         with tempfile.TemporaryDirectory() as temporary:
