@@ -215,3 +215,45 @@ The validator re-reads the original graph6 source and checks every source index,
 - R. Boulet, É. Fieux and B. Jouve, *Simplicial simple-homotopy of flag complexes in terms of graphs*, European Journal of Combinatorics **31** (2010), 161–176.
 
 The reasons stored in each row refer to the actual hypotheses and methods implemented in the pinned versions of `pycliques` and `pycombtop`; they do not quote ChatGPT-generated research reports.
+
+## Separate order-9 Morse follow-up (six timed-out cases)
+
+The original completed 261,080-graph order-9 census is immutable historical
+evidence: do **not** rerun stage 9 with a changed dependency, overwrite its
+26 compressed batches, edit its manifest, or revise its original summary.
+
+After merging the facet-greedy Morse certificate implementation in
+pycliques-project, and **only between completed census orders**, refresh the
+upstream pin and environment:
+
+~~~bash
+bash scripts/update_pycliques.sh
+git add config/pycliques_commit.txt
+git commit -m "Pin pycombtop with verified facet Morse certificates"
+git push
+
+.venv/bin/python audits/resolve_order9_timeouts.py
+git add runs/order9_morse_followup/ order9_morse_followup.md
+git commit -m "Resolve six order-9 timeouts with verified discrete Morse certificates"
+git push
+~~~
+
+The follow-up reads and verifies the six original, checksummed rows and
+their graph6 indices. It constructs their clique graphs and records only
+exact results backed by checked acyclic matchings and, where necessary,
+exact rational top homology and Hurewicz. It aborts without publishing an
+incomplete overlay if any of the six certificates fails.
+
+Outputs:
+
+- runs/order9_morse_followup/resolved_rows.tsv: six replacement records,
+  using the same columns as the original census;
+- runs/order9_morse_followup/summary.json: original and new upstream Git
+  revisions, original manifest/summary hashes, and revised aggregate counts;
+- order9_morse_followup.md: readable LaTeX-format six-graph results.
+
+The original non_helly_order9.md and order-9 batch files stay unchanged.
+Historical validation continues using
+bash scripts/validate_historical.sh 9. Future readers should apply the
+six-row overlay to obtain the revised order-9 classification, without
+misrepresenting it as a result obtained with the old pinned version.
