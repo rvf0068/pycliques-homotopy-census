@@ -72,8 +72,19 @@ def validate_order(n: int, directory, summary_dir) -> dict:
                                 "EXACT", "BETTI_ONLY", "LIMITED"
                             ):
                                 raise RuntimeError("Invalid status for K(G)")
-                            if row["helly_g"] not in ("TRUE", "FALSE"):
+                            if row["helly_g"] not in ("TRUE", "FALSE", "UNKNOWN"):
                                 raise RuntimeError("Invalid Helly status for G")
+                            if (
+                                row["helly_g"] == "UNKNOWN"
+                                and (
+                                    row["status_g"] != "LIMITED"
+                                    or row["comparison"] != "UNRESOLVED"
+                                )
+                            ):
+                                raise RuntimeError(
+                                    "Unknown Helly(G) is allowed only for "
+                                    "a time-limited unresolved graph"
+                                )
                             if row["helly_kg"] not in (
                                 "TRUE", "FALSE", "UNKNOWN"
                             ):
