@@ -15,6 +15,7 @@ if [[ "$STAGE" == "10" ]]; then
   # The split report can be generated from completed batches while the
   # current batch is still an fsynced, resumable journal.
   .venv/bin/python reports/order10_split.py
+  .venv/bin/python reports/order10_exceptions.py
   .venv/bin/python reports/order10_progress.py
   # Only ask the full validator to inspect the 11.7M rows when the final
   # batch has a completion marker.
