@@ -1,0 +1,51 @@
+{
+  "manifest": {
+    "data_sha256": {
+      "9": "9aec36903ae0c672ef61934a291d00cc197256a4cc6f2598e1840aad9863b454"
+    },
+    "indexing": "zero based, unchanged source order",
+    "monorepo_commit": "e5e530e223bf9c385475e1444d8650a101261166",
+    "monorepo_lock_sha256": "2182b09581b21a8342727712596c6be8726e61f9408acb1770753f96524c1a16",
+    "networkx": "3.6",
+    "orders": [
+      9
+    ],
+    "packages": {
+      "mogutda": "0.4.6",
+      "pycliques": "0.1.0",
+      "pycombtop": "0.1.0",
+      "pyg6data": "0.1.0"
+    },
+    "python": "3.11.13",
+    "runner_sha256": "a3062d3daa8d70497082ae39254fee4141e0740a4d0ee70efd6caa684a523351",
+    "schema": 1,
+    "settings": {
+      "flush_every": 100,
+      "max_homotopy_seconds": 120.0,
+      "max_ht_simplices": 25000,
+      "max_ht_vertices": 64,
+      "max_k_edges": 5000,
+      "max_k_vertices": 128
+    },
+    "source": "NetworkX atlas (1-5); pyg6data McKay connected files (6-10)"
+  },
+  "orders": [
+    {
+      "counts": {
+        "comparison_DISTINCT": 8781,
+        "comparison_EQUIVALENT": 252293,
+        "comparison_UNRESOLVED": 6,
+        "graphs": 261080,
+        "helly_g_FALSE": 108255,
+        "helly_g_TRUE": 152825,
+        "helly_kg_FALSE": 37187,
+        "helly_kg_TRUE": 223893,
+        "status_g_EXACT": 261080,
+        "status_kg_EXACT": 261074,
+        "status_kg_LIMITED": 6
+      },
+      "order": 9,
+      "unresolved": "runs/order9/unresolved_order9.tsv.gz"
+    }
+  ]
+}
