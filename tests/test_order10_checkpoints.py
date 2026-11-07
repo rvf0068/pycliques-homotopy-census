@@ -189,6 +189,43 @@ class CheckpointTests(unittest.TestCase):
             self.assertEqual(prune_completed(root, stage_git=False), 1)
             self.assertEqual(list((root / "checkpoints" / "order10").iterdir()), [])
 
+    def test_invalid_finished_marker_cannot_mask_unfinished_journal(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            raw = fake_run(root, 2)
+            snapshot(root, stage_git=False)
+            raw.unlink()
+            done = (
+                root / "runs" / "order10" / "order10" / "completed" /
+                "00600000-00699999.done.json"
+            )
+            done.parent.mkdir(parents=True)
+            done.write_text(json.dumps({"sha256": "bad", "rows": 100000}))
+            with self.assertRaisesRegex(RuntimeError, "without archive"):
+                restore(root)
+            self.assertFalse(raw.exists())
+
+    def test_corrupt_obsolete_snapshot_does_not_block_valid_completed_batch(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            raw = fake_run(root, 2)
+            snapshot(root, stage_git=False)
+            raw.unlink()
+            order = root / "runs" / "order10" / "order10"
+            chunk = order / "chunks" / "00600000-00699999.tsv.gz"
+            done = order / "completed" / "00600000-00699999.done.json"
+            chunk.parent.mkdir(parents=True)
+            done.parent.mkdir(parents=True)
+            with gzip.open(chunk, "wb") as out:
+                out.write(b"authoritative completed batch")
+            done.write_text(json.dumps({
+                "sha256": checksum(chunk), "rows": 100000,
+            }))
+            old = root / "checkpoints" / "order10" / "00600000-00699999.partial.tsv.gz"
+            old.write_bytes(b"corrupt obsolete backup")
+            self.assertEqual(prune_completed(root, stage_git=False), 1)
+            self.assertFalse(old.exists())
+
     def test_git_snapshot_untracks_but_does_not_delete_old_raw_file(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
