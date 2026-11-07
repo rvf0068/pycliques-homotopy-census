@@ -1,0 +1,11 @@
+{
+  "max_graph_seconds": 120.0,
+  "max_ht_simplices": 25000,
+  "max_ht_vertices": 64,
+  "max_k_edges": 5000,
+  "max_k_vertices": 128,
+  "pilot_source_sha256": "8acb7598e1e99cb1281f0a27d51f206d8999ab792ec8d286dbc147f28fb5ad79",
+  "python_version": "3.11.13",
+  "samples": 120,
+  "upstream_revision": "a51bc08974dd83b0ca411b68bd7d959e15789178"
+}

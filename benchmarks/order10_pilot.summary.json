@@ -1,0 +1,18 @@
+{
+  "completed_samples": 120,
+  "distinct": 8,
+  "limited_g": 0,
+  "limited_kg": 0,
+  "mean_seconds": 0.012611458333333334,
+  "median_seconds": 0.006954500000000001,
+  "note": "Sample-based single-process projection, not a runtime guarantee. Soft signal timers can be delayed by C code.",
+  "p90_seconds": 0.018021,
+  "p99_seconds": 0.071094,
+  "projected_full_run_days_single_worker": 1.7102204511115933,
+  "requested_samples": 120,
+  "total_order10_graphs": 11716571,
+  "unknown_helly_g": 0,
+  "unresolved": 0,
+  "upstream_revision": "a51bc08974dd83b0ca411b68bd7d959e15789178",
+  "worst_seconds": 0.399179
+}
