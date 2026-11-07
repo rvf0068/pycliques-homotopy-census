@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import csv
+import signal
 import sys
+import time
 import tempfile
 import unittest
 from itertools import islice
@@ -94,6 +96,32 @@ class CensusTests(unittest.TestCase):
         self.assertEqual(row["helly_kg"], "TRUE")
         self.assertEqual(ht.call_count, 2)
         self.assertNotIn("Prisner", row["reason_kg"])
+
+    def test_optional_homotopy_timeout_records_inconclusive(self):
+        """Timeouts must never be reported as contractibility or a wedge."""
+        graph = nx.cycle_graph(5)
+        limits = {**LIMITS, "max_homotopy_seconds": 0.01}
+
+        def too_slow(*_args, **_kwargs):
+            time.sleep(0.2)
+            raise AssertionError("The alarm failed to interrupt the classifier")
+
+        with mock.patch(
+            "pycombtop.homotopy_type.homotopy_type_with_verdict",
+            side_effect=too_slow,
+        ):
+            verdict = census.homotopy(graph, "Dhc", "G", limits)
+        self.assertEqual(verdict["status"], "LIMITED")
+        self.assertEqual(verdict["htype"], "UNKNOWN")
+        self.assertEqual(verdict["betti"], "UNKNOWN")
+        self.assertIn("exceeded", verdict["reason"])
+
+    def test_homotopy_alarm_handler_is_restored_after_exception(self):
+        original = signal.getsignal(signal.SIGALRM)
+        with self.assertRaisesRegex(RuntimeError, "test error"):
+            with census.homotopy_time_limit(1):
+                raise RuntimeError("test error")
+        self.assertEqual(original, signal.getsignal(signal.SIGALRM))
 
     def test_octahedral_difference_not_counterexample(self):
         g = nx.octahedral_graph()
