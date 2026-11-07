@@ -124,6 +124,28 @@ class CheckpointTests(unittest.TestCase):
             self.assertEqual(restore(root), 0)
             self.assertEqual(newer.read_bytes(), original)
 
+    def test_restore_leaves_torn_tail_for_original_census_recovery(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            raw = fake_run(root, 3)
+            snapshot(root, stage_git=False)
+            with raw.open("ab") as stream:
+                stream.write(b"10\\t600003\\tBROKEN")
+            original = raw.read_bytes()
+            # This must not fail before the census runner gets the journal.
+            self.assertEqual(restore(root), 0)
+            self.assertEqual(raw.read_bytes(), original)
+            from census import read_partial
+            self.assertEqual(len(read_partial(raw, 600000)), 3)
+            self.assertTrue(raw.read_bytes().endswith(b"\\n"))
+
+    def test_out_of_range_snapshot_indices_are_rejected(self):
+        from audits.order10_checkpoints import bounds
+        with self.assertRaisesRegex(RuntimeError, "Unexpected"):
+            bounds("11800000-11716570")
+        with self.assertRaisesRegex(RuntimeError, "Unexpected"):
+            bounds("11700000-11799999")
+
     def test_stale_local_journal_is_rejected_without_overwriting(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
