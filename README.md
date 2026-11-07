@@ -364,6 +364,7 @@ For a quick check without running classification:
 ~~~bash
 .venv/bin/python reports/order10_progress.py
 .venv/bin/python reports/order10_split.py --max-part-kib 768
+.venv/bin/python reports/order10_exceptions.py
 ~~~
 
 The root report `non_helly_order10_index.md` lists completed batch ranges,
@@ -401,3 +402,10 @@ Keep the graph budget and upstream pin fixed from the first classified
 graph through the final row. The second-stage follow-up of limited or
 Betti-only cases, if needed, should be done in a **separate overlay**,
 not by overwriting a completed order-10 batch.
+
+The companion `order10_exceptions_index.md` lists per-batch compressed
+`reports/order10_exceptions/*_nonexact.tsv.gz` records. They contain all
+`LIMITED` and `BETTI_ONLY` classifications from completed batches,
+retaining graph6 indices, available Betti numbers and explanations for
+later targeted follow-up work. This is a separate index, not a replacement
+for the original full census results.
