@@ -62,7 +62,7 @@ def bounds(stem: str) -> tuple[int, int]:
     if match is None:
         raise RuntimeError(f"Invalid order-10 checkpoint stem: {stem}")
     start, end = (int(s) for s in match.groups())
-    if start % BATCH_SIZE or end != min(start + BATCH_SIZE, TOTAL) - 1:
+    if start >= TOTAL or start % BATCH_SIZE or end != min(start + BATCH_SIZE, TOTAL) - 1:
         raise RuntimeError(f"Unexpected original source-index range: {stem}")
     return start, end
 
@@ -283,9 +283,10 @@ def restore(root: Path = ROOT) -> int:
         info, gz = verify_snapshot(root, meta)
         raw = order_dir(root) / "partial" / (stem + ".partial.tsv")
         if raw.exists():
-            # Never overwrite local progress. Require consistency even if
-            # this Codespace has more rows than the committed snapshot.
-            inspect_journal(raw, stem)
+            # Never overwrite local progress. A crash may leave a torn
+            # unterminated last line; only census.read_partial() may trim it.
+            # Check the snapshot's immutable byte prefix here, without
+            # parsing or modifying any trailing local records.
             if raw.stat().st_size < info["bytes"]:
                 raise RuntimeError(
                     f"Local journal is older than the compressed snapshot {stem}. "
