@@ -7,6 +7,7 @@ halts the run. Betti-only verdicts are never called homotopy types.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import csv
 import gzip
 import hashlib
@@ -14,6 +15,7 @@ import io
 import json
 import os
 import random
+import signal
 from pathlib import Path
 
 import networkx as nx
@@ -27,6 +29,37 @@ COLUMNS = (
     "status_kg", "htype_kg", "betti_kg", "reason_kg", "comparison",
 )
 COUNTEREXAMPLE_EXIT = 42
+
+
+class _HomotopyTimeLimit(Exception):
+    """Soft Linux/Codespaces timeout of one homotopy classification."""
+
+
+@contextmanager
+def homotopy_time_limit(seconds: float):
+    """Temporarily bound an individual expensive homotopy computation.
+
+    The census runs single-threaded in Linux Codespaces. The timer is
+    restored unconditionally, even when pycombtop raises an exception.
+    A disabled (zero) budget leaves the classifier fully unrestricted.
+    """
+    if seconds <= 0:
+        yield
+        return
+    if not hasattr(signal, "setitimer"):
+        raise RuntimeError("Homotopy time limits require POSIX signal timers")
+
+    def alarm(_signum, _frame):
+        raise _HomotopyTimeLimit()
+
+    previous_handler = signal.getsignal(signal.SIGALRM)
+    signal.signal(signal.SIGALRM, alarm)
+    previous_timer = signal.setitimer(signal.ITIMER_REAL, seconds)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, *previous_timer)
+        signal.signal(signal.SIGALRM, previous_handler)
 
 
 def stage_orders(stage: str) -> list[int]:
@@ -53,11 +86,18 @@ def homotopy(graph: nx.Graph, g6: str, tag: str, limits: dict) -> dict:
 
     # Dong's matching shuffles vertices. This makes retries reproducible.
     random.seed(deterministic_seed(g6, tag))
-    verdict = homotopy_type_with_verdict(
-        graph,
-        max_vertices=limits["max_ht_vertices"],
-        max_simplices=limits["max_ht_simplices"],
-    )
+    seconds = float(limits.get("max_homotopy_seconds", 0))
+    try:
+        with homotopy_time_limit(seconds):
+            verdict = homotopy_type_with_verdict(
+                graph,
+                max_vertices=limits["max_ht_vertices"],
+                max_simplices=limits["max_ht_simplices"],
+            )
+    except _HomotopyTimeLimit:
+        return unavailable(
+            f"Homotopy classifier exceeded {seconds:g} seconds"
+        )
     if verdict.is_limited:
         return {
             "status": "LIMITED", "htype": "UNKNOWN", "betti": "UNKNOWN",
@@ -366,16 +406,25 @@ def main() -> None:
     parser.add_argument("--max-ht-vertices", type=int, default=64)
     parser.add_argument("--max-ht-simplices", type=int, default=25000)
     parser.add_argument("--flush-every", type=int, default=100)
+    parser.add_argument(
+        "--max-homotopy-seconds", type=float, default=0,
+        help="Optional POSIX wall-clock limit per homotopy calculation; 0 disables",
+    )
     args = parser.parse_args()
     limits = {
         key: getattr(args, key)
         for key in (
             "max_k_vertices", "max_k_edges", "max_ht_vertices",
-            "max_ht_simplices", "flush_every",
+            "max_ht_simplices", "flush_every", "max_homotopy_seconds",
         )
     }
-    if any(value <= 0 for value in limits.values()):
-        parser.error("Resource limits and flush interval must be positive")
+    if any(
+        limits[key] <= 0 for key in (
+            "max_k_vertices", "max_k_edges", "max_ht_vertices",
+            "max_ht_simplices", "flush_every",
+        )
+    ) or limits["max_homotopy_seconds"] < 0:
+        parser.error("Resource limits must be positive; optional timeout >= 0")
     orders = stage_orders(args.stage)
     run_dir = ROOT / "runs" / (
         "through6" if args.stage == "through6" else f"order{args.stage}"
