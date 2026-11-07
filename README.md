@@ -273,3 +273,131 @@ Historical validation continues using
 bash scripts/validate_historical.sh 9. Future readers should apply the
 six-row overlay to obtain the revised order-9 classification, without
 misrepresenting it as a result obtained with the old pinned version.
+
+
+## Order-10 census: budgeted, resumable sessions and split reports
+
+Order 10 contains 11,716,571 connected graphs, indexed in the original McKay
+order. The authoritative lossless result remains the **same** 100,000-graph,
+checksummed gzip batches and resumable per-graph journals. The additional
+tools below do not alter the historical order-9 census or the six-row Morse
+follow-up.
+
+### Prepare and pin before the first order-10 run
+
+The original \`through6\` stage used a different historical runner and
+dependency revision. If \`runs/through6/summary.json\` is absent, validate it
+with the historical validator **first**, commit its summary, and only then
+change the pinned dependency:
+
+~~~bash
+git pull --ff-only
+bash scripts/validate_historical.sh through6
+git add runs/through6/summary.json
+git commit -m "Validate historical through6 census"
+bash scripts/update_pycliques.sh
+git add config/pycliques_commit.txt
+git commit -m "Pin Morse-enabled pycliques for order 10"
+git push
+.venv/bin/python -c 'from pycombtop import graph_morse_certificate; print("Morse ready")'
+~~~
+
+Do not bypass the updater's provenance guard, change the pin during a
+started run, or use the separate follow-up virtualenv as the main
+census environment.
+
+### A small pilot before the full run
+
+~~~bash
+.venv/bin/python audits/benchmark_order10.py \
+  --samples 120 --max-graph-seconds 120 --max-run-hours 1
+~~~
+
+This selects 120 approximately evenly spaced original graph indices across
+all 11,716,571 connected graphs. Classification uses the actual pinned
+census implementation. Results go to \`benchmarks/order10_pilot.tsv\`,
+with companion \`.meta.json\` and \`.summary.json\` files. The script
+periodically flushes records and resumes using the same sample count and
+code revision; a change of revision requires a new output path. The summary
+reports the sample mean, median, p90, p99, timeout and unresolved counts,
+and a *rough* projected single-worker duration. The projection is
+uncertain because sparse samples may miss expensive cases.
+
+A pilot run creates **no** \`runs/order10/\` manifest, and it does not
+consume or modify the full census's checkpoint stream.
+
+### Full run: 2 minutes per whole graph, a session cutoff
+
+~~~bash
+bash run_with_report.sh 10 --max-graph-seconds 120 --max-run-hours 16
+~~~
+
+The new \`--max-graph-seconds 120\` timer applies to the whole graph:
+decoding, Helly tests, G and K(G) construction, and both homotopy
+calculations. It is a **soft** wall-clock limit: long native calls can
+delay Python signal delivery. If the graph times out, the index is
+still recorded; previously completed exact subresults and Helly flags
+are kept, and unknown data are explicitly marked \`UNKNOWN\` and
+\`LIMITED\`. A bounded graph is never falsely recorded as contractible.
+The existing \`--max-homotopy-seconds\` option retains its different,
+per-homotopy semantics; do not combine the two timers.
+
+\`--max-run-hours 16\` ends the current Codespaces session at a
+**graph boundary**, flushes and fsyncs the current journal, and returns
+without incorrectly claiming that the whole order is complete.
+The cutoff can overshoot by a single graph and by the time taken to
+write reports; it is **not** a GitHub spending limit. This particular
+session-hours setting is intentionally *not* part of the immutable
+manifest, so it can vary on subsequent resumes. All classification
+settings (including \`--max-graph-seconds 120\`) **must remain identical**
+for the whole order.
+
+To resume, repeat exactly the same command (with a different session
+cutoff if desired). The wrapper creates an incremental report from
+completed batches and prints read-only progress. Full validation is
+performed only after the final batch has completed. If a potential
+counterexample is found, the normal stop-and-independent-verification
+logic takes priority.
+
+For a quick check without running classification:
+
+~~~bash
+.venv/bin/python reports/order10_progress.py
+.venv/bin/python reports/order10_split.py --max-part-kib 768
+~~~
+
+The root report \`non_helly_order10_index.md\` lists completed batch ranges,
+counts, and links to detailed parts in \`reports/order10_parts/\`.
+Each part has a target maximum of 768 KiB. Complete batches are verified
+against their SHA-256 markers, report parts are generated incrementally,
+and per-batch metadata avoids regenerating previous parts. The report
+excludes uncommitted partial journals until they become completed batches.
+No single enormous Markdown file is created. Generated detailed reports
+may collectively be hundreds of MB; check their size and GitHub repository
+storage before deciding how much to commit. The compressed census
+batches remain the authoritative scientific record.
+
+### Monthly Codespaces allowances and commits
+
+The free included allowance is **core-hours**, not clock hours. A 2-core
+Codespace consumes two core-hours for every clock hour it runs; opening
+an idle Codespace can also consume compute allowance. The 16-hour
+example deliberately leaves room for other work, but check the
+current GitHub billing meter before and after each session.
+After any session, consider committing *completed* compressed census
+batches and SHA-256 markers, the current partial journal, and the
+small root index. The journal is committable and resumable; avoid
+running concurrent writers to the same \`runs/order10/\` directory.
+
+When the stage is fully complete, run:
+
+~~~bash
+.venv/bin/python scripts/validate.py --stage 10
+.venv/bin/python reports/order10_split.py
+git status --short
+~~~
+
+Keep the graph budget and upstream pin fixed from the first classified
+graph through the final row. The second-stage follow-up of limited or
+Betti-only cases, if needed, should be done in a **separate overlay**,
+not by overwriting a completed order-10 batch.
