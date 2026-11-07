@@ -123,6 +123,21 @@ class VersioningTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "counterexample"):
             check_all_stage_completions(self.root)
 
+    def test_followup_overlay_does_not_block_future_dependency_updates(self):
+        self.completed_stage()
+        overlay = self.root / "runs" / "order9_morse_followup"
+        overlay.mkdir()
+        (overlay / "summary.json").write_text('{"resolved_rows": 6}')
+        result = check_all_stage_completions(self.root)
+        self.assertEqual([entry["stage"] for entry in result], ["7"])
+
+    def test_unvalidated_stage_still_blocks_even_with_morse_overlay(self):
+        directory = self.completed_stage()
+        (self.root / "runs" / "order9_morse_followup").mkdir()
+        (directory / "summary.json").unlink()
+        with self.assertRaisesRegex(RuntimeError, "not yet validated"):
+            check_all_stage_completions(self.root)
+
     def test_unexpected_run_data_blocks_update(self):
         (self.root / "runs" / "unknown_stage").mkdir()
         with self.assertRaisesRegex(RuntimeError, "Unexpected"):
