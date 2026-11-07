@@ -89,6 +89,52 @@ class CheckpointTests(unittest.TestCase):
                 restore(root)
             self.assertFalse(raw.exists())
 
+    def test_new_snapshot_does_not_overwrite_prior_published_backup(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            fake_run(root, 3)
+            snapshot(root, stage_git=False)
+            old_archive = snapshot_archive(root)
+            old_bytes = old_archive.read_bytes()
+            old_meta = (
+                root / "checkpoints" / "order10" /
+                "00600000-00699999.snapshot.json"
+            )
+            previous_meta = old_meta.read_bytes()
+            fake_run(root, 8)
+            snapshot(root, stage_git=False)
+            new_archive = snapshot_archive(root)
+            self.assertNotEqual(new_archive, old_archive)
+            self.assertEqual(old_archive.read_bytes(), old_bytes)
+            # Simulate a crash before publishing new metadata: the previous
+            # metadata and archive must still form a valid restorable pair.
+            old_meta.write_bytes(previous_meta)
+            (root / "runs" / "order10" / "order10" / "partial" /
+             "00600000-00699999.partial.tsv").unlink()
+            self.assertEqual(restore(root), 1)
+            self.assertEqual(inspect_journal(
+                root / "runs" / "order10" / "order10" / "partial" /
+                "00600000-00699999.partial.tsv",
+                "00600000-00699999",
+            ), 3)
+
+    def test_snapshot_original_hash_is_checked_on_restore(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            raw = fake_run(root, 3)
+            snapshot(root, stage_git=False)
+            meta = (
+                root / "checkpoints" / "order10" /
+                "00600000-00699999.snapshot.json"
+            )
+            info = json.loads(meta.read_text())
+            info["original_sha256"] = "0" * 64
+            meta.write_text(json.dumps(info))
+            raw.unlink()
+            with self.assertRaisesRegex(RuntimeError, "Original snapshot bytes"):
+                restore(root)
+            self.assertFalse(raw.exists())
+
     def test_manifest_change_blocks_cross_run_restoration(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
