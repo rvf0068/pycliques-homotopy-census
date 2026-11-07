@@ -9,6 +9,21 @@ if (( $# < 1 )) || [[ ! "${1:-}" =~ ^(through6|7|8|9|10)$ ]]; then
 fi
 STAGE="$1"
 shift
+
+# Historical stages have immutable manifests tied to the runner that
+# produced them. Never resume or revalidate those datasets with newer
+# scripts; the existing checksummed report postprocessor is read-only.
+if [[ "$STAGE" != "10" && -f "runs/$([[ "$STAGE" == "through6" ]] && printf 'through6' || printf 'order%s' "$STAGE")/manifest.json" ]]; then
+  if (( $# > 0 )); then
+    echo "Existing historical stage: census options cannot be applied." >&2
+    echo "Use reports/non_helly.py or scripts/validate_historical.sh for this stage." >&2
+    exit 2
+  fi
+  .venv/bin/python reports/non_helly.py --stage "$STAGE"
+  echo "Historical report only; use bash scripts/validate_historical.sh $STAGE if validation is needed."
+  exit 0
+fi
+
 bash scripts/run.sh "$STAGE" "$@"
 
 if [[ "$STAGE" == "10" ]]; then
