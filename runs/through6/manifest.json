@@ -1,0 +1,34 @@
+{
+  "data_sha256": {
+    "6": "5e41b93e1c55b742273a3cbb037fdce7755f103d93597d8da3ac28e46ba5d647"
+  },
+  "indexing": "zero based, unchanged source order",
+  "monorepo_commit": "e5d687f479da94c655d7b69297f9e9a4b839719c",
+  "monorepo_lock_sha256": "2182b09581b21a8342727712596c6be8726e61f9408acb1770753f96524c1a16",
+  "networkx": "3.6",
+  "orders": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "packages": {
+    "mogutda": "0.4.6",
+    "pycliques": "0.1.0",
+    "pycombtop": "0.1.0",
+    "pyg6data": "0.1.0"
+  },
+  "python": "3.11.13",
+  "runner_sha256": "d117d2515bcb392b16b12daf0f78054f4f14b9cc2af128ee39636ae4dcdf09e7",
+  "schema": 1,
+  "settings": {
+    "flush_every": 100,
+    "max_ht_simplices": 25000,
+    "max_ht_vertices": 64,
+    "max_k_edges": 5000,
+    "max_k_vertices": 128
+  },
+  "source": "NetworkX atlas (1-5); pyg6data McKay connected files (6-10)"
+}
