@@ -124,6 +124,28 @@ class CheckpointTests(unittest.TestCase):
             self.assertEqual(restore(root), 0)
             self.assertEqual(newer.read_bytes(), original)
 
+    def test_stale_local_journal_is_rejected_without_overwriting(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            raw = fake_run(root, 9)
+            snapshot(root, stage_git=False)
+            older = fake_run(root, 2)
+            contents = older.read_bytes()
+            with self.assertRaisesRegex(RuntimeError, "older than"):
+                restore(root)
+            self.assertEqual(raw.read_bytes(), contents)
+
+    def test_divergent_local_journal_is_rejected_without_overwriting(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            raw = fake_run(root, 5)
+            snapshot(root, stage_git=False)
+            modified = raw.read_bytes().replace(b"I?aaaaaaaa", b"I?bbbbbbbb")
+            raw.write_bytes(modified)
+            with self.assertRaisesRegex(RuntimeError, "differs from"):
+                restore(root)
+            self.assertEqual(raw.read_bytes(), modified)
+
     def test_finished_chunk_supersedes_and_prunes_snapshot(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
