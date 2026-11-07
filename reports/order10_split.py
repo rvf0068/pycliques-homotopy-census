@@ -11,7 +11,6 @@ import argparse
 from collections import Counter
 import csv
 import gzip
-import hashlib
 import json
 import os
 from pathlib import Path
