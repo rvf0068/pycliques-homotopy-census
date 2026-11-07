@@ -235,7 +235,7 @@ historical records untouched:
 ~~~bash
 git pull --ff-only
 bash audits/run_order9_morse_followup.sh
-git add runs/order9_morse_followup/ order9_morse_followup.md
+git add followups/order9_morse/ order9_morse_followup.md
 git commit -m "Resolve six order-9 timeouts with verified discrete Morse certificates"
 git push
 ~~~
@@ -262,9 +262,9 @@ incomplete overlay if any of the six certificates fails.
 
 Outputs:
 
-- runs/order9_morse_followup/resolved_rows.tsv: six replacement records,
+- followups/order9_morse/resolved_rows.tsv: six replacement records,
   using the same columns as the original census;
-- runs/order9_morse_followup/summary.json: original and new upstream Git
+- followups/order9_morse/summary.json: original and new upstream Git
   revisions, original manifest/summary hashes, and revised aggregate counts;
 - order9_morse_followup.md: readable LaTeX-format six-graph results.
 
