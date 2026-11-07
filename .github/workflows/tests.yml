@@ -9,10 +9,21 @@ jobs:
         run: bash scripts/bootstrap.sh
       - name: Run unit tests
         run: .venv/bin/python -m unittest discover -s tests -v
-      - name: Run through order 6
-        run: bash scripts/run.sh through6
-      - name: Validate graph order and results
-        run: .venv/bin/python scripts/validate.py --stage through6
+      - name: Isolate new runner outputs from committed historical results
+        run: |
+          mv runs "$RUNNER_TEMP/baseline-runs"
+          mkdir runs
+      - name: Run and validate all stages through order 8
+        run: |
+          for stage in through6 7 8; do
+            bash scripts/run.sh "$stage"
+            .venv/bin/python scripts/validate.py --stage "$stage"
+          done
+      - name: Independently compare all 12,113 scientific records
+        run: |
+          .venv/bin/python audits/compare_results.py \
+            --baseline "$RUNNER_TEMP/baseline-runs" --candidate runs \
+            --stage through6 --stage 7 --stage 8
       - name: Generate root-level non-Helly report from completed results
         run: |
           .venv/bin/python reports/non_helly.py --stage through6
