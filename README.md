@@ -93,6 +93,47 @@ For this reconstruction to work, commit the runner code and updated pin
 checkout and the old revision cannot be found, fetch full history with
 `git fetch --unshallow` (when applicable).
 
+## Readable non-Helly graph reports
+
+The census retains detailed, lossless records in its compressed result
+batches. For a **human-readable Markdown file at the repository root**,
+listing only those graphs for which **G is not Helly**, run:
+
+```bash
+git pull --ff-only
+.venv/bin/python reports/non_helly.py --stage through6
+```
+
+This creates `non_helly_through6.md` **without rerunning any graph
+classification**. The report includes the order, original zero-based index,
+original graph6 string, the certified clique-complex homotopy types of both
+G and K(G), and the Helly status of K(G). For example, it prints inline
+LaTeX math such as `\(S^{1}\)`, `\(S^{1}\vee S^{2}\)`, or
+`Contractible`. If a homotopy type was not certified, the table says
+`Undetermined` rather than inferring contractibility from Betti numbers.
+Graph6 special characters are escaped safely for Markdown tables.
+
+For a **single command that runs, validates, and produces the report**, use:
+
+```bash
+bash run_with_report.sh through6
+bash run_with_report.sh 7
+```
+
+The same wrapper accepts `8`, `9`, and `10`, producing
+`non_helly_order8.md`, etc. Alternatively you may keep using
+`scripts/run.sh` and generate the report separately once the stage is
+complete. A report is written atomically only after all expected batches
+are present, their checkpoint hashes match, and their indices are
+consecutive. It reads recorded data and does **not** alter run manifests,
+partial journals, or completed result files.
+
+**Earlier completed runs need not be discarded.** The report generator
+is deliberately kept outside the provenance-hashed `scripts/`
+directory, and the original runner and validator are unchanged. Very large
+orders may create correspondingly large Markdown files; commit those only
+after inspecting their size.
+
 ## Main table and meaning of verdicts
 
 Each completed batch contains one TSV row per original connected graph, with fields:
