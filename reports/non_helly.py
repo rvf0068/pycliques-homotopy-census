@@ -163,8 +163,13 @@ def iter_verified_rows(stage: str, root: Path):
                         raise RuntimeError(
                             f"Wrong graph index in {archived}: expected {expected_index}"
                         )
-                    if row["helly_g"] not in {"TRUE", "FALSE"}:
+                    if row["helly_g"] not in {"TRUE", "FALSE", "UNKNOWN"}:
                         raise RuntimeError("Missing/invalid Helly status for G")
+                    if row["helly_g"] == "UNKNOWN" and (
+                        row["status_g"] != "LIMITED"
+                        or row["comparison"] != "UNRESOLVED"
+                    ):
+                        raise RuntimeError("Invalid whole-graph timeout record")
                     if row["helly_kg"] not in {"TRUE", "FALSE", "UNKNOWN"}:
                         raise RuntimeError("Missing/invalid Helly status for K(G)")
                     if row["status_g"] not in {"EXACT", "BETTI_ONLY", "LIMITED"}:
