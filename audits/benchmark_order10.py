@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
+import io
 import json
 import math
 import os
@@ -56,6 +58,56 @@ def check_environment():
     return revision
 
 
+def pilot_source_digest(root: Path = ROOT) -> str:
+    """Hash all census runner scripts and this pilot, including local edits.
+
+    Git HEAD alone is insufficient: committing results changes HEAD without
+    changing the algorithm, while uncommitted edits can change the algorithm.
+    The digest is sensitive to the actual source bytes used by the pilot.
+    """
+    sources = sorted((root / "scripts").glob("*.py"))
+    sources += sorted((root / "scripts").glob("*.sh"))
+    sources += [
+        root / "audits" / "benchmark_order10.py",
+        root / "config" / "pycliques_commit.txt",
+    ]
+    digest = hashlib.sha256()
+    for source in sources:
+        if not source.is_file():
+            raise RuntimeError(f"Missing pilot provenance source: {source}")
+        digest.update(source.relative_to(root).as_posix().encode("utf-8"))
+        digest.update(b"\x00")
+        digest.update(source.read_bytes())
+        digest.update(b"\x00")
+    return digest.hexdigest()
+
+
+def recover_pilot_rows(output: Path, selected: list[int]) -> dict[int, str]:
+    """Discard a torn, unterminated last line and validate all other rows."""
+    data = output.read_bytes()
+    if data and not data.endswith(b"\n"):
+        data = data[: data.rfind(b"\n") + 1]
+        output.write_bytes(data)
+    if not data:
+        return {}
+    try:
+        reader = csv.DictReader(io.StringIO(data.decode("utf-8")), delimiter="\t")
+        if tuple(reader.fieldnames or ()) != COLUMNS:
+            raise RuntimeError("Pilot CSV column mismatch")
+        done = {}
+        for row in reader:
+            if not row or any(row.get(key) in (None, "") for key in COLUMNS):
+                raise RuntimeError("Incomplete newline-terminated pilot CSV row")
+            idx = int(row["index"])
+            if len(done) >= len(selected) or idx != selected[len(done)]:
+                raise RuntimeError("Pilot rows are not a contiguous sampled prefix")
+            float(row["seconds"])
+            done[idx] = row["graph6"]
+    except (UnicodeError, csv.Error, ValueError) as exc:
+        raise RuntimeError("Malformed pilot CSV; check sample provenance") from exc
+    return done
+
+
 def analyze(csv_path: Path, planned: int, total: int) -> dict:
     with csv_path.open(newline="", encoding="utf-8") as stream:
         rows = list(csv.DictReader(stream, delimiter="\t"))
@@ -99,13 +151,14 @@ def pilot(
     revision = check_environment()
     total = EXPECTED_COUNTS[10]
     selected = sample_indices(samples, total)
-    wanted = set(selected)
     output.parent.mkdir(parents=True, exist_ok=True)
     metadata = output.with_suffix(".meta.json")
     summary = output.with_suffix(".summary.json")
     settings = {
         "samples": samples, "max_graph_seconds": max_graph_seconds,
         "upstream_revision": revision,
+        "pilot_source_sha256": pilot_source_digest(),
+        "python_version": sys.version.split()[0],
         "max_ht_vertices": 64, "max_ht_simplices": 25000,
         "max_k_vertices": 128, "max_k_edges": 5000,
     }
@@ -117,17 +170,7 @@ def pilot(
     else:
         metadata.write_text(json.dumps(settings, indent=2, sort_keys=True) + "\n")
 
-    done: dict[int, str] = {}
-    if output.exists():
-        with output.open(encoding="utf-8", newline="") as stream:
-            reader = csv.DictReader(stream, delimiter="\t")
-            if tuple(reader.fieldnames or []) != COLUMNS:
-                raise RuntimeError("Pilot CSV column mismatch")
-            for row in reader:
-                idx = int(row["index"])
-                if idx not in wanted or idx in done:
-                    raise RuntimeError("Pilot indices are invalid or duplicated")
-                done[idx] = row["graph6"]
+    done = recover_pilot_rows(output, selected) if output.exists() else {}
 
     limits = {
         "max_k_vertices": 128, "max_k_edges": 5000,
