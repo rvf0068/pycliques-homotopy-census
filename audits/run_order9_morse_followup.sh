@@ -61,6 +61,6 @@ PYCLIQUES_MORSE_CHECKOUT="$MORSE" \
 
 echo
 echo "Review results in order9_morse_followup.md, then commit separately:"
-echo "  git add runs/order9_morse_followup/ order9_morse_followup.md"
+echo "  git add followups/order9_morse/ order9_morse_followup.md"
 echo '  git commit -m "Resolve six order-9 timeouts using facet Morse certificates"'
 echo "  git push"
