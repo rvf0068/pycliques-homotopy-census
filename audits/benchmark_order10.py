@@ -151,6 +151,7 @@ def pilot(
     revision = check_environment()
     total = EXPECTED_COUNTS[10]
     selected = sample_indices(samples, total)
+    wanted = set(selected)
     output.parent.mkdir(parents=True, exist_ok=True)
     metadata = output.with_suffix(".meta.json")
     summary = output.with_suffix(".summary.json")
