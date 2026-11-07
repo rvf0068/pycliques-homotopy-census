@@ -116,7 +116,24 @@ def classify(g6: str, n: int, index: int, limits: dict) -> dict:
     else:
         k_order = len(kg)
         hk = str(bool(is_clique_helly(kg))).upper()
-        vk = homotopy(kg, g6, "K(G)", limits)
+        if hg and hk != "TRUE":
+            raise RuntimeError("Clique-Helly preservation theorem violated")
+        if hg and vg["status"] == "EXACT":
+            # Prisner's theorem: if G is clique-Helly, then its clique
+            # complex and the clique complex of K(G) are homotopy
+            # equivalent. Transfer ONLY a certified exact homotopy type;
+            # the conjectural converse (K(G) Helly => equivalence) is NOT
+            # used. The independent Helly test for K(G) is kept as a
+            # consistency check.
+            vk = {
+                **vg,
+                "reason": (
+                    "Prisner clique-Helly homotopy equivalence; "
+                    "transferred exact type of G. Original: " + vg["reason"]
+                ),
+            }
+        else:
+            vk = homotopy(kg, g6, "K(G)", limits)
 
     row = {
         "order": n, "index": index, "graph6": g6,
