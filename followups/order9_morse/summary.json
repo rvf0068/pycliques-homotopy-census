@@ -1,0 +1,21 @@
+{
+  "description": "Separate, six-row Morse follow-up; order9 historical files untouched",
+  "followup_monorepo_commit": "a51bc08974dd83b0ca411b68bd7d959e15789178",
+  "original_monorepo_commit": "e5e530e223bf9c385475e1444d8650a101261166",
+  "original_order9_manifest_sha256": "f97058d5f14b61fb31228df8e64eeb5db8278dbe4f858a0892938d37f0f46414",
+  "original_order9_summary_sha256": "a9f2fbc2e1ab7dae6ce22d6a1d4c3840a50a24d26ab2e979b49231e2411d94a7",
+  "resolved_rows": 6,
+  "revised_counts": {
+    "comparison_DISTINCT": 8787,
+    "comparison_EQUIVALENT": 252293,
+    "comparison_UNRESOLVED": 0,
+    "graphs": 261080,
+    "helly_g_FALSE": 108255,
+    "helly_g_TRUE": 152825,
+    "helly_kg_FALSE": 37187,
+    "helly_kg_TRUE": 223893,
+    "status_g_EXACT": 261080,
+    "status_kg_EXACT": 261080,
+    "status_kg_LIMITED": 0
+  }
+}
