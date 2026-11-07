@@ -143,10 +143,6 @@ def check_all_stage_completions(root: Path) -> list[dict]:
     for path in sorted(runs.iterdir()):
         if path.is_file() and path.name == ".gitkeep":
             continue
-        # This overlay is not a census stage. It stores only six new
-        # certificates and must not be confused with historical chunks.
-        if path.is_dir() and path.name == "order9_morse_followup":
-            continue
         if not path.is_dir() or path.name not in recognized:
             raise RuntimeError(f"Unexpected run artifact: {path}")
         checks.append(verify_stage_complete(root, recognized[path.name]))
