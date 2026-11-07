@@ -16,10 +16,10 @@ import os
 from pathlib import Path
 
 if __package__:
-    from .non_helly import ROOT, safe_graph6
+    from .non_helly import ROOT
     from .order10_split import atomic_text, completed_batches
 else:
-    from non_helly import ROOT, safe_graph6
+    from non_helly import ROOT
     from order10_split import atomic_text, completed_batches
 
 DIRECTORY = "reports/order10_exceptions"
