@@ -5,8 +5,6 @@ from __future__ import annotations
 import csv
 import gzip
 import hashlib
-import io
-import json
 from pathlib import Path
 import sys
 import tempfile
@@ -22,7 +20,6 @@ import census
 from audits.benchmark_order10 import analyze, sample_indices
 from reports.order10_progress import progress
 from reports.order10_split import (
-    atomic_text,
     build_index,
     render_batch,
 )
@@ -128,7 +125,7 @@ class Order10PreparationTests(unittest.TestCase):
                 render_batch(root, 0, 11, archive, digest, max_bytes=600), meta
             )
             index = build_index(root, [meta])
-            self.assertIn("12 non", index.read_text().lower() + " 12 non")
+            self.assertIn("**Non-Helly G:** 12.", index.read_text())
             with self.assertRaisesRegex(RuntimeError, "different input"):
                 render_batch(root, 0, 11, archive, digest, max_bytes=700)
 
