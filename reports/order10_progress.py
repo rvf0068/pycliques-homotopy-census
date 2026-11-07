@@ -42,7 +42,7 @@ def progress(root: Path = ROOT) -> dict:
         if start != completed:
             raise RuntimeError("Partial journal is not after completed prefix")
         with journal.open("rb") as stream:
-            # Only newlines are durably completed records; ignore torn tail.
+            # Only newline-terminated rows can be counted; fsync is not assured.
             line_count = sum(block.count(b"\n") for block in
                              iter(lambda: stream.read(256 * 1024), b""))
         pending = max(0, line_count - 1)
@@ -51,10 +51,14 @@ def progress(root: Path = ROOT) -> dict:
         "completed_batches": (completed + BATCH - 1) // BATCH,
         "completed_graphs": completed,
         "journal_graphs": pending,
-        "durably_recorded_graphs": completed + pending,
+        # Visible newline-terminated rows need not yet be fsynced. Only
+        # completed batches have verified integrity markers; the normal
+        # census journal fsyncs after each configured flush interval.
+        "visible_graphs": completed + pending,
         "remaining_graphs": TOTAL - completed - pending,
         "percent": round(100 * (completed + pending) / TOTAL, 4),
         "result_bytes_on_disk": disk_bytes,
+        "journal_durable": False if pending else True,
     }
 
 
@@ -67,11 +71,16 @@ def main() -> None:
         print(json.dumps(state, indent=2))
     else:
         print(
-            f"Order 10: {state['durably_recorded_graphs']:,} / {TOTAL:,} "
+            f"Order 10: {state['visible_graphs']:,} / {TOTAL:,} "
             f"({state['percent']:.2f}%) in "
             f"{state['completed_batches']} complete batches and "
             f"{state['journal_graphs']:,} journaled graphs."
         )
+        if state["journal_graphs"]:
+            print(
+                "Journal count is a snapshot of visible newline-terminated "
+                "rows, NOT proof of fsync; recent rows may be lost on a crash."
+            )
         print(
             f"Remaining {state['remaining_graphs']:,}; "
             f"completed/partial output uses "
