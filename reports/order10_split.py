@@ -11,6 +11,7 @@ import argparse
 from collections import Counter
 import csv
 import gzip
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -81,8 +82,13 @@ def render_batch(
         state = json.loads(sidecar.read_text(encoding="utf-8"))
         if state.get("archive_sha256") != digest or state.get("max_bytes") != max_bytes:
             raise RuntimeError(f"Existing report generated from different input: {stem}")
-        if any(not (dest / filename).is_file() for filename in state["parts"]):
-            raise RuntimeError(f"Missing generated report part for batch {stem}")
+        hashes = state.get("parts_sha256")
+        if not isinstance(hashes, dict) or set(hashes) != set(state["parts"]):
+            raise RuntimeError(f"Missing report-part checksums for batch {stem}")
+        for filename in state["parts"]:
+            part = dest / filename
+            if not part.is_file() or sha256_file(part) != hashes[filename]:
+                raise RuntimeError(f"Corrupt or missing report part: {filename}")
         return state
 
     selection: list[str] = []
@@ -143,9 +149,12 @@ def render_batch(
         raise RuntimeError(f"Wrong number of rows in batch {stem}")
     if selection:
         parts.append(_rows_to_part(root, stem, part, selection, first, last))
+    hashes = {filename: sha256_file(dest / filename) for filename in parts}
+    if any((dest / filename).stat().st_size > max_bytes for filename in parts):
+        raise RuntimeError(f"Generated report exceeds size limit for {stem}")
     state = {
         "start": start, "end": end, "archive_sha256": digest,
-        "max_bytes": max_bytes, "parts": parts,
+        "max_bytes": max_bytes, "parts": parts, "parts_sha256": hashes,
         "counts": dict(sorted(counters.items())),
     }
     atomic_text(sidecar, json.dumps(state, indent=2, sort_keys=True) + "\n")
