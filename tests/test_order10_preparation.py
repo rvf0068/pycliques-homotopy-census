@@ -155,7 +155,7 @@ class Order10PreparationTests(unittest.TestCase):
             self.assertEqual(rows[0]["status_kg"], "LIMITED")
             self.assertEqual(process_batch(root, 0, 0, archive, digest), result)
 
-    def test_progress_counts_only_completed_and_durable_journal(self):
+    def test_progress_distinguishes_visible_rows_from_fsynced_batches(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             base = root / "runs" / "order10" / "order10"
@@ -166,7 +166,8 @@ class Order10PreparationTests(unittest.TestCase):
             state = progress(root)
             self.assertEqual(state["completed_graphs"], 0)
             self.assertEqual(state["journal_graphs"], 2)
-            self.assertEqual(state["durably_recorded_graphs"], 2)
+            self.assertEqual(state["visible_graphs"], 2)
+            self.assertFalse(state["journal_durable"])
 
     def test_pilot_projection_reports_only_measured_records(self):
         with tempfile.TemporaryDirectory() as temporary:
