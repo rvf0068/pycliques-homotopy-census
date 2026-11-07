@@ -289,6 +289,7 @@ class CheckpointTests(unittest.TestCase):
             git("commit", "-qm", "legacy raw journal")
             self.assertIn("partial.tsv", git("ls-files"))
             snapshot(root, stage_git=True)
+            compressed_name = snapshot_archive(root).relative_to(root).as_posix()
             staged = git("diff", "--cached", "--name-status")
             self.assertIn("D\truns/order10/order10/partial/00600000-00699999.partial.tsv",
                           staged)
@@ -301,6 +302,28 @@ class CheckpointTests(unittest.TestCase):
             self.assertTrue(raw.is_file())
             self.assertNotIn(
                 "partial.tsv\n", git("ls-files") + "\n"
+            )
+            # Complete the batch, then make sure Git stages deletion of the
+            # old immutable gzip generation and its sidecar.
+            git("commit", "-qm", "store compressed backup")
+            raw.unlink()
+            order = root / "runs" / "order10" / "order10"
+            chunk = order / "chunks" / "00600000-00699999.tsv.gz"
+            done = order / "completed" / "00600000-00699999.done.json"
+            chunk.parent.mkdir(parents=True)
+            done.parent.mkdir(parents=True)
+            with gzip.open(chunk, "wb") as out:
+                out.write(b"finished batch")
+            done.write_text(json.dumps({
+                "sha256": checksum(chunk), "rows": 100000,
+            }))
+            self.assertEqual(prune_completed(root, stage_git=True), 1)
+            staged = git("diff", "--cached", "--name-status")
+            self.assertIn("D\tcheckpoints/order10/00600000-00699999.snapshot.json", staged)
+            self.assertIn(
+                "D\t" + (
+                    compressed_name
+                ), staged
             )
 
 
