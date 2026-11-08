@@ -2,11 +2,11 @@
 
 Incremental, checksummed report. Only **completed** source batches are represented. Original census batches are never modified.
 
-**Processed:** 2,800,000 / 11,716,571 connected graphs (28 completed batches).
-**Non-Helly G:** 1,044,793.
-**Distinct types:** 41,779.
+**Processed:** 3,800,000 / 11,716,571 connected graphs (38 completed batches).
+**Non-Helly G:** 1,618,216.
+**Distinct types:** 68,881.
 **Unresolved:** 9.
-**G not Helly, K(G) Helly:** 722,080.
+**G not Helly, K(G) Helly:** 1,077,528.
 **Unknown Helly(G) due to graph budget:** 0.
 
 These totals cover only the processed prefix; they are **not** estimates of the remaining graphs.
@@ -41,3 +41,13 @@ These totals cover only the processed prefix; they are **not** estimates of the 
 | 2,500,000–2,599,999 | 100,000 | 49,064 | [Part 1](reports/order10_parts/02500000-02599999_p001.md), [Part 2](reports/order10_parts/02500000-02599999_p002.md), [Part 3](reports/order10_parts/02500000-02599999_p003.md), [Part 4](reports/order10_parts/02500000-02599999_p004.md), [Part 5](reports/order10_parts/02500000-02599999_p005.md) |
 | 2,600,000–2,699,999 | 100,000 | 37,140 | [Part 1](reports/order10_parts/02600000-02699999_p001.md), [Part 2](reports/order10_parts/02600000-02699999_p002.md), [Part 3](reports/order10_parts/02600000-02699999_p003.md), [Part 4](reports/order10_parts/02600000-02699999_p004.md) |
 | 2,700,000–2,799,999 | 100,000 | 48,903 | [Part 1](reports/order10_parts/02700000-02799999_p001.md), [Part 2](reports/order10_parts/02700000-02799999_p002.md), [Part 3](reports/order10_parts/02700000-02799999_p003.md), [Part 4](reports/order10_parts/02700000-02799999_p004.md), [Part 5](reports/order10_parts/02700000-02799999_p005.md) |
+| 2,800,000–2,899,999 | 100,000 | 55,281 | [Part 1](reports/order10_parts/02800000-02899999_p001.md), [Part 2](reports/order10_parts/02800000-02899999_p002.md), [Part 3](reports/order10_parts/02800000-02899999_p003.md), [Part 4](reports/order10_parts/02800000-02899999_p004.md), [Part 5](reports/order10_parts/02800000-02899999_p005.md), [Part 6](reports/order10_parts/02800000-02899999_p006.md) |
+| 2,900,000–2,999,999 | 100,000 | 49,157 | [Part 1](reports/order10_parts/02900000-02999999_p001.md), [Part 2](reports/order10_parts/02900000-02999999_p002.md), [Part 3](reports/order10_parts/02900000-02999999_p003.md), [Part 4](reports/order10_parts/02900000-02999999_p004.md), [Part 5](reports/order10_parts/02900000-02999999_p005.md) |
+| 3,000,000–3,099,999 | 100,000 | 56,434 | [Part 1](reports/order10_parts/03000000-03099999_p001.md), [Part 2](reports/order10_parts/03000000-03099999_p002.md), [Part 3](reports/order10_parts/03000000-03099999_p003.md), [Part 4](reports/order10_parts/03000000-03099999_p004.md), [Part 5](reports/order10_parts/03000000-03099999_p005.md), [Part 6](reports/order10_parts/03000000-03099999_p006.md) |
+| 3,100,000–3,199,999 | 100,000 | 57,062 | [Part 1](reports/order10_parts/03100000-03199999_p001.md), [Part 2](reports/order10_parts/03100000-03199999_p002.md), [Part 3](reports/order10_parts/03100000-03199999_p003.md), [Part 4](reports/order10_parts/03100000-03199999_p004.md), [Part 5](reports/order10_parts/03100000-03199999_p005.md), [Part 6](reports/order10_parts/03100000-03199999_p006.md) |
+| 3,200,000–3,299,999 | 100,000 | 55,373 | [Part 1](reports/order10_parts/03200000-03299999_p001.md), [Part 2](reports/order10_parts/03200000-03299999_p002.md), [Part 3](reports/order10_parts/03200000-03299999_p003.md), [Part 4](reports/order10_parts/03200000-03299999_p004.md), [Part 5](reports/order10_parts/03200000-03299999_p005.md), [Part 6](reports/order10_parts/03200000-03299999_p006.md) |
+| 3,300,000–3,399,999 | 100,000 | 53,187 | [Part 1](reports/order10_parts/03300000-03399999_p001.md), [Part 2](reports/order10_parts/03300000-03399999_p002.md), [Part 3](reports/order10_parts/03300000-03399999_p003.md), [Part 4](reports/order10_parts/03300000-03399999_p004.md), [Part 5](reports/order10_parts/03300000-03399999_p005.md), [Part 6](reports/order10_parts/03300000-03399999_p006.md) |
+| 3,400,000–3,499,999 | 100,000 | 55,335 | [Part 1](reports/order10_parts/03400000-03499999_p001.md), [Part 2](reports/order10_parts/03400000-03499999_p002.md), [Part 3](reports/order10_parts/03400000-03499999_p003.md), [Part 4](reports/order10_parts/03400000-03499999_p004.md), [Part 5](reports/order10_parts/03400000-03499999_p005.md), [Part 6](reports/order10_parts/03400000-03499999_p006.md) |
+| 3,500,000–3,599,999 | 100,000 | 65,413 | [Part 1](reports/order10_parts/03500000-03599999_p001.md), [Part 2](reports/order10_parts/03500000-03599999_p002.md), [Part 3](reports/order10_parts/03500000-03599999_p003.md), [Part 4](reports/order10_parts/03500000-03599999_p004.md), [Part 5](reports/order10_parts/03500000-03599999_p005.md), [Part 6](reports/order10_parts/03500000-03599999_p006.md), [Part 7](reports/order10_parts/03500000-03599999_p007.md) |
+| 3,600,000–3,699,999 | 100,000 | 66,783 | [Part 1](reports/order10_parts/03600000-03699999_p001.md), [Part 2](reports/order10_parts/03600000-03699999_p002.md), [Part 3](reports/order10_parts/03600000-03699999_p003.md), [Part 4](reports/order10_parts/03600000-03699999_p004.md), [Part 5](reports/order10_parts/03600000-03699999_p005.md), [Part 6](reports/order10_parts/03600000-03699999_p006.md), [Part 7](reports/order10_parts/03600000-03699999_p007.md) |
+| 3,700,000–3,799,999 | 100,000 | 59,398 | [Part 1](reports/order10_parts/03700000-03799999_p001.md), [Part 2](reports/order10_parts/03700000-03799999_p002.md), [Part 3](reports/order10_parts/03700000-03799999_p003.md), [Part 4](reports/order10_parts/03700000-03799999_p004.md), [Part 5](reports/order10_parts/03700000-03799999_p005.md), [Part 6](reports/order10_parts/03700000-03799999_p006.md), [Part 7](reports/order10_parts/03700000-03799999_p007.md) |

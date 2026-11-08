@@ -1,0 +1,11 @@
+{
+  "archive_sha256": "d51a6dd2a481857012c541e888955f1f01b7507cb7047b6aaca8ee61799b6c27",
+  "counts": {
+    "distinct": 2200,
+    "graphs": 100000,
+    "nonhelly_g_helly_kg": 36230
+  },
+  "end": 3499999,
+  "file": "03400000-03499999_nonexact.tsv.gz",
+  "start": 3400000
+}

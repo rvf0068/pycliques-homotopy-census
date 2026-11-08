@@ -1,0 +1,29 @@
+{
+  "archive_sha256": "eca67a0e6e7abbf998bcef487735ab89486e6d677a127a7f609e4a73a100b834",
+  "counts": {
+    "comparison_DISTINCT": 4292,
+    "comparison_EQUIVALENT": 95708,
+    "graphs": 100000,
+    "nonhelly_g": 49157,
+    "nonhelly_g_helly_kg": 29299,
+    "status_g_EXACT": 100000,
+    "status_kg_EXACT": 100000
+  },
+  "end": 2999999,
+  "max_bytes": 786432,
+  "parts": [
+    "02900000-02999999_p001.md",
+    "02900000-02999999_p002.md",
+    "02900000-02999999_p003.md",
+    "02900000-02999999_p004.md",
+    "02900000-02999999_p005.md"
+  ],
+  "parts_sha256": {
+    "02900000-02999999_p001.md": "0ecf2390ee610fe7e21a7f291a176dac2450536f14a4aca135a9188e6ce0586d",
+    "02900000-02999999_p002.md": "b3786d5436578d2b4f19b721e1c10466eda1b3e01dd2efbb54a616589482605e",
+    "02900000-02999999_p003.md": "8c62fb084a14751095571622b3c21df59510ece6237a6d40efe49c7468dc5407",
+    "02900000-02999999_p004.md": "b8ea7b3c97830b55cab64495eab364dc21d50d2d7f9b5246fb1866308aaf2bf3",
+    "02900000-02999999_p005.md": "5dd34d0ab6704eaff586e4b97e686f7fac203e2e4c81252e3458d3011b34a5ea"
+  },
+  "start": 2900000
+}
