@@ -2,8 +2,8 @@
 
 Generated from **completed, SHA-256 checked batches only**. Original indices and graph6 strings are retained; no historical census files are modified.
 
-Processed graphs: 7,500,000. Not exactly classified: 12. Unresolved comparisons: 12.
-Distinct reduced-homotopy records: 282,684. G non-Helly with K(G) Helly: 2,363,918.
+Processed graphs: 8,100,000. Not exactly classified: 54. Unresolved comparisons: 53.
+Distinct reduced-homotopy records: 369,355. G non-Helly with K(G) Helly: 2,534,647.
 
 Nonexact TSV files include Betti-only and time-limited rows (including records where Helly(G) is unknown). They may be used for a separate follow-up pass without overwriting the order-10 census.
 
@@ -84,3 +84,9 @@ Nonexact TSV files include Betti-only and time-limited rows (including records w
 | 7,200,000–7,299,999 | 0 | [Records](reports/order10_exceptions/07200000-07299999_nonexact.tsv.gz) |
 | 7,300,000–7,399,999 | 0 | [Records](reports/order10_exceptions/07300000-07399999_nonexact.tsv.gz) |
 | 7,400,000–7,499,999 | 0 | [Records](reports/order10_exceptions/07400000-07499999_nonexact.tsv.gz) |
+| 7,500,000–7,599,999 | 0 | [Records](reports/order10_exceptions/07500000-07599999_nonexact.tsv.gz) |
+| 7,600,000–7,699,999 | 0 | [Records](reports/order10_exceptions/07600000-07699999_nonexact.tsv.gz) |
+| 7,700,000–7,799,999 | 4 | [Records](reports/order10_exceptions/07700000-07799999_nonexact.tsv.gz) |
+| 7,800,000–7,899,999 | 0 | [Records](reports/order10_exceptions/07800000-07899999_nonexact.tsv.gz) |
+| 7,900,000–7,999,999 | 38 | [Records](reports/order10_exceptions/07900000-07999999_nonexact.tsv.gz) |
+| 8,000,000–8,099,999 | 0 | [Records](reports/order10_exceptions/08000000-08099999_nonexact.tsv.gz) |
