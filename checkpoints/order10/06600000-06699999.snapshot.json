@@ -1,0 +1,12 @@
+{
+  "archive_name": "06600000-06699999.3b433ea06e692ad4.partial.tsv.gz",
+  "bytes": 66481921,
+  "end": 6699999,
+  "gzip_sha256": "3b433ea06e692ad431ccd0818824a0e7cf4ff479e872ece0e87ad052d0e02d37",
+  "manifest_sha256": "2cd6d0fefb82bbf6acbef5aefb2f4ab9c7dc906c16442a3d0e9e7490070c53b3",
+  "original_sha256": "ccdb098134cb59cd1d62245cef4289954578804578cd8c301d2b3cf1e384c526",
+  "rows": 70501,
+  "schema": 1,
+  "start": 6600000,
+  "stem": "06600000-06699999"
+}

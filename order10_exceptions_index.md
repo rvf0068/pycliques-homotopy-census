@@ -2,8 +2,8 @@
 
 Generated from **completed, SHA-256 checked batches only**. Original indices and graph6 strings are retained; no historical census files are modified.
 
-Processed graphs: 5,400,000. Not exactly classified: 9. Unresolved comparisons: 9.
-Distinct reduced-homotopy records: 124,511. G non-Helly with K(G) Helly: 1,622,763.
+Processed graphs: 6,600,000. Not exactly classified: 12. Unresolved comparisons: 12.
+Distinct reduced-homotopy records: 217,885. G non-Helly with K(G) Helly: 2,040,436.
 
 Nonexact TSV files include Betti-only and time-limited rows (including records where Helly(G) is unknown). They may be used for a separate follow-up pass without overwriting the order-10 census.
 
@@ -63,3 +63,15 @@ Nonexact TSV files include Betti-only and time-limited rows (including records w
 | 5,100,000–5,199,999 | 0 | [Records](reports/order10_exceptions/05100000-05199999_nonexact.tsv.gz) |
 | 5,200,000–5,299,999 | 0 | [Records](reports/order10_exceptions/05200000-05299999_nonexact.tsv.gz) |
 | 5,300,000–5,399,999 | 0 | [Records](reports/order10_exceptions/05300000-05399999_nonexact.tsv.gz) |
+| 5,400,000–5,499,999 | 0 | [Records](reports/order10_exceptions/05400000-05499999_nonexact.tsv.gz) |
+| 5,500,000–5,599,999 | 0 | [Records](reports/order10_exceptions/05500000-05599999_nonexact.tsv.gz) |
+| 5,600,000–5,699,999 | 0 | [Records](reports/order10_exceptions/05600000-05699999_nonexact.tsv.gz) |
+| 5,700,000–5,799,999 | 0 | [Records](reports/order10_exceptions/05700000-05799999_nonexact.tsv.gz) |
+| 5,800,000–5,899,999 | 0 | [Records](reports/order10_exceptions/05800000-05899999_nonexact.tsv.gz) |
+| 5,900,000–5,999,999 | 0 | [Records](reports/order10_exceptions/05900000-05999999_nonexact.tsv.gz) |
+| 6,000,000–6,099,999 | 3 | [Records](reports/order10_exceptions/06000000-06099999_nonexact.tsv.gz) |
+| 6,100,000–6,199,999 | 0 | [Records](reports/order10_exceptions/06100000-06199999_nonexact.tsv.gz) |
+| 6,200,000–6,299,999 | 0 | [Records](reports/order10_exceptions/06200000-06299999_nonexact.tsv.gz) |
+| 6,300,000–6,399,999 | 0 | [Records](reports/order10_exceptions/06300000-06399999_nonexact.tsv.gz) |
+| 6,400,000–6,499,999 | 0 | [Records](reports/order10_exceptions/06400000-06499999_nonexact.tsv.gz) |
+| 6,500,000–6,599,999 | 0 | [Records](reports/order10_exceptions/06500000-06599999_nonexact.tsv.gz) |
