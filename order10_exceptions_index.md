@@ -2,8 +2,8 @@
 
 Generated from **completed, SHA-256 checked batches only**. Original indices and graph6 strings are retained; no historical census files are modified.
 
-Processed graphs: 6,600,000. Not exactly classified: 12. Unresolved comparisons: 12.
-Distinct reduced-homotopy records: 217,885. G non-Helly with K(G) Helly: 2,040,436.
+Processed graphs: 7,500,000. Not exactly classified: 12. Unresolved comparisons: 12.
+Distinct reduced-homotopy records: 282,684. G non-Helly with K(G) Helly: 2,363,918.
 
 Nonexact TSV files include Betti-only and time-limited rows (including records where Helly(G) is unknown). They may be used for a separate follow-up pass without overwriting the order-10 census.
 
@@ -75,3 +75,12 @@ Nonexact TSV files include Betti-only and time-limited rows (including records w
 | 6,300,000–6,399,999 | 0 | [Records](reports/order10_exceptions/06300000-06399999_nonexact.tsv.gz) |
 | 6,400,000–6,499,999 | 0 | [Records](reports/order10_exceptions/06400000-06499999_nonexact.tsv.gz) |
 | 6,500,000–6,599,999 | 0 | [Records](reports/order10_exceptions/06500000-06599999_nonexact.tsv.gz) |
+| 6,600,000–6,699,999 | 0 | [Records](reports/order10_exceptions/06600000-06699999_nonexact.tsv.gz) |
+| 6,700,000–6,799,999 | 0 | [Records](reports/order10_exceptions/06700000-06799999_nonexact.tsv.gz) |
+| 6,800,000–6,899,999 | 0 | [Records](reports/order10_exceptions/06800000-06899999_nonexact.tsv.gz) |
+| 6,900,000–6,999,999 | 0 | [Records](reports/order10_exceptions/06900000-06999999_nonexact.tsv.gz) |
+| 7,000,000–7,099,999 | 0 | [Records](reports/order10_exceptions/07000000-07099999_nonexact.tsv.gz) |
+| 7,100,000–7,199,999 | 0 | [Records](reports/order10_exceptions/07100000-07199999_nonexact.tsv.gz) |
+| 7,200,000–7,299,999 | 0 | [Records](reports/order10_exceptions/07200000-07299999_nonexact.tsv.gz) |
+| 7,300,000–7,399,999 | 0 | [Records](reports/order10_exceptions/07300000-07399999_nonexact.tsv.gz) |
+| 7,400,000–7,499,999 | 0 | [Records](reports/order10_exceptions/07400000-07499999_nonexact.tsv.gz) |
