@@ -31,7 +31,7 @@ From the root of `pycliques-homotopy-census`, with the pinned original `.venv`:
 ```bash
 .venv/bin/python audits/order10_phase1.py
 .venv/bin/python audits/order10_phase1.py --check
-.venv/bin/python -m pytest tests/test_order10_phase1.py -q
+.venv/bin/python -m unittest discover -s tests -p 'test_order10_phase1.py' -v
 ```
 
 The audit reads and checks the original `runs/order10/summary.json` and
