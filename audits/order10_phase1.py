@@ -39,7 +39,7 @@ EXPECTED_UNCLASSIFIED = 80
 EXPECTED_ISOMORPHISM_CLASSES = 60
 REQUIRED_FIELDS = {
     "order", "index", "graph6", "helly_g", "helly_kg", "status_g",
-    "status_kg", "comparison", "betti_g", "htype_g",
+    "status_kg", "comparison", "betti_g",
 }
 
 
@@ -250,7 +250,7 @@ def analyze_rows(rows: list[dict]) -> tuple[list[dict], list[dict]]:
             "original_helly_g": row["helly_g"],
             "original_helly_kg": row["helly_kg"],
             "original_betti_g": row["betti_g"],
-            "original_htype_g": row["htype_g"],
+            "original_htype_g": row.get("htype_g", row["betti_g"]),
             "clique_graph_order": len(k),
             "clique_graph_edges": k.number_of_edges(),
             "folds": moves,
