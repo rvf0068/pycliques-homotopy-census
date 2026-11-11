@@ -35,8 +35,14 @@ BASELINE_UPSTREAM = "a51bc08974dd83b0ca411b68bd7d959e15789178"
 EXPECTED_UNRESOLVED = 176
 EXPECTED_ORIGINAL_GRAPHS = 11_716_571
 EXPECTED_EXACT = 96
+EXPECTED_EQUIVALENT = 11
+EXPECTED_DISTINCT = 85
 EXPECTED_UNCLASSIFIED = 80
 EXPECTED_ISOMORPHISM_CLASSES = 60
+BASELINE_BLOBS = {
+    "runs/order10/summary.json": "57e1db91c2a5b0079f0173e160e958c07173b8ee",
+    "runs/order10/unresolved_order10.tsv.gz": "96c0af7d58e405170d7f64269320dcae67525cff",
+}
 REQUIRED_FIELDS = {
     "order", "index", "graph6", "helly_g", "helly_kg", "status_g",
     "status_kg", "comparison", "betti_g",
@@ -51,7 +57,19 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+def git_blob_sha1(path: Path) -> str:
+    """Hash a file with Git\'s blob domain separator, without invoking git."""
+    data = path.read_bytes()
+    return hashlib.sha1(f"blob {len(data)}\\0".encode("ascii") + data).hexdigest()
+
+
 def original_unresolved(root: Path = ROOT) -> tuple[list[dict], dict]:
+    # Anchor both sources to immutable Git blob IDs from the validated commit.
+    # Hashing the supplied files without *comparing* them would not be provenance.
+    for relative_path, expected_blob in BASELINE_BLOBS.items():
+        path = root / relative_path
+        if git_blob_sha1(path) != expected_blob:
+            raise RuntimeError(f"Source differs from validated commit {BASELINE_COMMIT}: {relative_path}")
     folder = root / "runs" / "order10"
     summary_path = folder / "summary.json"
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
@@ -279,9 +297,9 @@ def tsv_bytes(rows: list[dict], fields: list[str]) -> bytes:
 
 def artifacts(rows: list[dict], groups: list[dict], provenance: dict) -> dict[str, bytes]:
     counts = Counter(row["comparison"] for row in rows)
-    if (len(rows), sum(v for k, v in counts.items() if k != "UNCLASSIFIED"),
+    if (len(rows), counts["EQUIVALENT"], counts["DISTINCT"],
             counts["UNCLASSIFIED"], len(groups)) != (
-            EXPECTED_UNRESOLVED, EXPECTED_EXACT,
+            EXPECTED_UNRESOLVED, EXPECTED_EQUIVALENT, EXPECTED_DISTINCT,
             EXPECTED_UNCLASSIFIED, EXPECTED_ISOMORPHISM_CLASSES):
         raise RuntimeError(f"Unexpected phase-1 totals: {counts}, {len(groups)} cores")
     if any(row["original_helly_kg"] == "TRUE" and
