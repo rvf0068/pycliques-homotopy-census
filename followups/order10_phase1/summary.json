@@ -1,0 +1,24 @@
+{
+  "baseline_commit": "8e768705fd8b41c5ca2cfea1ed9eedf633f5a43d",
+  "baseline_upstream": "a51bc08974dd83b0ca411b68bd7d959e15789178",
+  "certified_distinct": 85,
+  "certified_equivalent": 11,
+  "clique_helly_original_exceptions": [
+    6074303,
+    7993989,
+    7994353,
+    11529569
+  ],
+  "input_unresolved": 176,
+  "methods": {
+    "comparison": "Both types are exact sphere wedges, so their reduced Betti vectors determine agreement",
+    "factors": "Ind(K2)=S0; Ind(C6)=S1 v S1; Ind(C10)=S2; K1 gives a cone",
+    "folds": "Replay N[v] subseteq N[u] on the current clique graph",
+    "isomorphism": "WL hashes only bucket candidates; exact GraphMatcher supplies explicit maps",
+    "join": "Delta(core) = join of independence complexes of complement components"
+  },
+  "nonisomorphic_unclassified_cores": 60,
+  "original_summary_sha256": "9229aeed90ad88d09f3cace2e23176e2859926e496749d9721c749e00be86098",
+  "original_unresolved_sha256": "918fcacfd0d386e25e6a1914d7adaaac1f74c4d7bddc62109c1ead1a3888cdf0",
+  "unclassified": 80
+}
