@@ -60,7 +60,7 @@ def sha256(path: Path) -> str:
 def git_blob_sha1(path: Path) -> str:
     """Hash a file with Git\'s blob domain separator, without invoking git."""
     data = path.read_bytes()
-    return hashlib.sha1(f"blob {len(data)}\\0".encode("ascii") + data).hexdigest()
+    return hashlib.sha1(f"blob {len(data)}\0".encode("ascii") + data).hexdigest()
 
 
 def original_unresolved(root: Path = ROOT) -> tuple[list[dict], dict]:
