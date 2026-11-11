@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
+import tempfile
 from pathlib import Path
 
 import networkx as nx
@@ -89,6 +91,29 @@ class Order10Phase1Tests(unittest.TestCase):
         )
     
     
+    def test_baseline_git_blob_identity_is_required(self):
+        expected = b"test"
+        with tempfile.TemporaryDirectory() as directory:
+            p = Path(directory) / "test.bin"
+            p.write_bytes(expected)
+            self.assertEqual(
+                phase.git_blob_sha1(p),
+                hashlib.sha1(b"blob 4\0test").hexdigest(),
+            )
+            base = Path(directory) / "runs" / "order10"
+            base.mkdir(parents=True)
+            (base / "summary.json").write_text("{}")
+            (base / "unresolved_order10.tsv.gz").write_bytes(b"not the census")
+            with self.assertRaisesRegex(RuntimeError, "Source differs from validated"):
+                phase.original_unresolved(Path(directory))
+
+    def test_fails_closed_if_exact_split_changes(self):
+        cases = [{"comparison": name} for name, n in [
+            ("EQUIVALENT", 10), ("DISTINCT", 86), ("UNCLASSIFIED", 80)
+        ] for _ in range(n)]
+        with self.assertRaisesRegex(RuntimeError, "Unexpected phase-1 totals"):
+            phase.artifacts(cases, [{}] * 60, {})
+
     def test_census_phase1_output_matches_committed_data_when_available(self):
         summary = ROOT / "runs" / "order10" / "summary.json"
         unresolved = ROOT / "runs" / "order10" / "unresolved_order10.tsv.gz"
