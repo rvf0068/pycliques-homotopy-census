@@ -2,6 +2,20 @@
 
 A reproducible census of the homotopy types of the **clique complexes** of all connected, unlabeled, finite simple graphs of orders 1–10 and of their clique graphs. The computation records whether each of `G` and `K(G)` is clique-Helly (abbreviated **Helly** throughout).
 
+## Completed order-10 homotopy comparison audit (Phase 2)
+
+The 176 originally unresolved comparisons of the clique complexes of (G)
+and (K(G)) now have independently replayable classifications: **165
+DISTINCT, 11 EQUIVALENT, and zero unresolved comparisons**. Of the 80
+cases remaining after Phase 1, 68 are distinguished by exact Euler
+characteristics and 12 by exact mod-2 boundary ranks after reconstructing
+(K(G)) directly. This resolves *homotopy-equivalence comparisons*, not
+all full homotopy types.
+
+See [the Phase-2 audit, results, and homology witnesses](followups/order10_phase2/README.md).
+Replay with `.venv/bin/python audits/order10_phase2.py --check`. The original
+census, indices, and Phase-1 baseline remain immutable.
+
 ## Graph sources and original indices
 
 **Orders 6–10:** the original *connected* Brendan McKay graph6 files bundled in Rafael Villarroel's `pyg6data` package, exactly those read by `pyg6data.lists.graph_generator(n, connected=True)`. The implementation streams raw file lines for efficiency, especially when skipping completed order-10 batches. It **does not reorder, sort, relabel, or canonicalize** these strings. The original **zero-based source index** is recorded and agrees with `pycliques-census`.
