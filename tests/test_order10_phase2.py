@@ -74,9 +74,34 @@ class Phase2Tests(unittest.TestCase):
         self.assertEqual(len(result["results.tsv"].splitlines()), 81)
         self.assertEqual(len(result["homology_witnesses.tsv"].splitlines()), 13)
         dest = ROOT / "followups/order10_phase2"
-        if all((dest / name).exists() for name in result):
-            for name, data in result.items():
-                self.assertEqual((dest / name).read_bytes(), data)
+        for name, data in result.items():
+            artifact = dest / name
+            self.assertTrue(artifact.is_file(), f"Missing committed artifact: {artifact}")
+            self.assertEqual(artifact.read_bytes(), data)
+
+    def test_missing_derived_artifact_fails_replay(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(RuntimeError, "Derived artifact mismatch"):
+                audit.publish(
+                    Path(directory), {"summary.json": b"expected contents"}, check=True
+                )
+
+    def test_original_g_exact_type_required(self):
+        cases, reps, journal = audit.load_inputs(ROOT)
+        unclassified = [
+            row for row in cases if row["comparison"] == "UNCLASSIFIED"
+        ]
+        self.assertEqual(len(unclassified), 80)
+        self.assertTrue(all(row["htype_g"] not in {"", "UNKNOWN"} for row in unclassified))
+        self.assertTrue(all(row["betti_kg"] == "UNKNOWN" for row in unclassified))
+        # The original graph G must have an exact Phase-1 certificate:
+        # an unknown G type must not be silently treated as a wedge.
+        altered = copy.deepcopy(cases)
+        next(row for row in altered if row["comparison"] == "UNCLASSIFIED")[
+            "htype_g"
+        ] = "UNKNOWN"
+        with self.assertRaisesRegex(RuntimeError, "Missing exact Phase-1 homotopy type"):
+            audit.audit(altered, reps, journal)
 
     def test_missing_or_modified_benchmark_row_rejected(self):
         cases, reps, journal = audit.load_inputs(ROOT)
