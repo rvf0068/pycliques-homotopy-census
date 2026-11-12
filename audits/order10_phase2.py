@@ -246,7 +246,16 @@ def audit(cases: list[dict], reps: list[dict], journal: list[dict]) -> dict[str,
             raise RuntimeError(f"Unexpected original graph order: {index}")
         kgraph = reconstruct_k(graph)
         chi_g, chi_k = reduced_euler(graph), reduced_euler(kgraph)
-        original_wedge = exact_wedge(row["htype_g"])
+        # Phase 1 stores an exact homotopy type for every original G.
+        # UNKNOWN is valid for its K(G) Betti column, not for htype_g.
+        # Do not quietly replace this required certificate with homology
+        # or an Euler-only inference if the source is corrupted.
+        signature = row["htype_g"]
+        if signature in {"", "UNKNOWN"}:
+            raise RuntimeError(
+                f"Missing exact Phase-1 homotopy type of G at index {index}"
+            )
+        original_wedge = exact_wedge(signature)
         if chi_g != wedge_euler(original_wedge):
             raise RuntimeError(f"Original type contradicts Euler characteristic: {index}")
         if representative_index not in core_eulers:
