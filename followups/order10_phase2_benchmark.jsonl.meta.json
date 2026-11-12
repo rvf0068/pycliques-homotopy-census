@@ -1,0 +1,9 @@
+{
+  "dong_seed": 0,
+  "git_commit": "edba0792ec904035b03487831f2fc280ba720799",
+  "max_simplices": 25000,
+  "max_vertices": 64,
+  "python": "3.11.13",
+  "sha256_representatives": "ad6056c8f44a39251708ebc5635a9d7caace9a61d960e7992490330260cc0914",
+  "timeout_seconds": 120
+}
