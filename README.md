@@ -4,12 +4,12 @@ A reproducible census of the homotopy types of the **clique complexes** of all c
 
 ## Completed order-10 homotopy comparison audit (Phase 2)
 
-The 176 originally unresolved comparisons of the clique complexes of (G)
-and (K(G)) now have independently replayable classifications: **165
+The 176 originally unresolved comparisons of the clique complexes of \(G\)
+and \(K(G)\) now have independently replayable classifications: **165
 DISTINCT, 11 EQUIVALENT, and zero unresolved comparisons**. Of the 80
 cases remaining after Phase 1, 68 are distinguished by exact Euler
 characteristics and 12 by exact mod-2 boundary ranks after reconstructing
-(K(G)) directly. This resolves *homotopy-equivalence comparisons*, not
+\(K(G)\) directly. This resolves *homotopy-equivalence comparisons*, not
 all full homotopy types.
 
 See [the Phase-2 audit, results, and homology witnesses](followups/order10_phase2/README.md).
