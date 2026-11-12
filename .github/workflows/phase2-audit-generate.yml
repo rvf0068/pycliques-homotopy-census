@@ -1,0 +1,31 @@
+name: Generate Phase-2 derived audit (temporary)
+on:
+  push:
+    branches: [research/order10-phase2-independent-audit]
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare pinned census environment
+        run: bash scripts/bootstrap.sh
+      - name: Verify and generate exact Phase-2 audit
+        run: |
+          .venv/bin/python -m unittest discover -s tests -p 'test_order10_phase2.py' -v
+          .venv/bin/python audits/order10_phase2.py
+          .venv/bin/python audits/order10_phase2.py --check
+      - name: Commit derived overlay only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add followups/order10_phase2/summary.json \
+                  followups/order10_phase2/results.tsv \
+                  followups/order10_phase2/homology_witnesses.tsv
+          if ! git diff --cached --quiet; then
+            git commit -m "Record independently replayable Phase-2 comparison evidence"
+            git push origin HEAD:"$GITHUB_REF_NAME"
+          fi
