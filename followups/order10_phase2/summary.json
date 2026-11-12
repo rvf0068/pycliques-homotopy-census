@@ -1,0 +1,35 @@
+{
+  "benchmark_status": {
+    "EXACT": 38,
+    "LIMITED": 5,
+    "TIMEOUT": 17
+  },
+  "comparison_scope": "Delta(G) vs Delta(K(G)); full homotopy type of K(G) not always known",
+  "final_distinct": 165,
+  "final_equivalent": 11,
+  "final_unresolved": 0,
+  "original_order10_unresolved": 176,
+  "phase1_distinct": 85,
+  "phase1_equivalent": 11,
+  "phase2_euler_distinct": 68,
+  "phase2_euler_inconclusive_representatives": [
+    7923665,
+    11537978,
+    11650233,
+    11656524,
+    11661308,
+    11661348,
+    11661524,
+    11715924,
+    11716425
+  ],
+  "phase2_homology_distinct": 12,
+  "phase2_original_graphs": 80,
+  "phase2_representatives": 60,
+  "source_git_blobs": {
+    "followups/order10_phase1/representatives.tsv": "0da9d8cf5ebd01bf2e7144faafcb6aac919f22e2",
+    "followups/order10_phase1/results.tsv": "3e83181c6e47e51e62d5af4f82cfeb1e5feacbf8",
+    "followups/order10_phase2_benchmark.jsonl": "b84b264dfcd19485ebf592036d7423d92524211e",
+    "followups/order10_phase2_benchmark.jsonl.meta.json": "ab5356698ca6c069da86b57bcc858ffb3e9b66d6"
+  }
+}
