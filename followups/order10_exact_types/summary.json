@@ -1,0 +1,12 @@
+{
+  "order": 10,
+  "connected_graphs": 11716571,
+  "exact_G": 11716571,
+  "exact_KG": 11716571,
+  "unresolved_types": 0,
+  "equivalent": 10959509,
+  "distinct": 757062,
+  "verified_representatives": 60,
+  "original_nonexact_rows": 177,
+  "pycliques_project_commit": "6da348bc116c3630e0d8bea88470366fe6d0fa4d"
+}

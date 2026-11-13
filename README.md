@@ -2,6 +2,16 @@
 
 A reproducible census of the homotopy types of the **clique complexes** of all connected, unlabeled, finite simple graphs of orders 1–10 and of their clique graphs. The computation records whether each of `G` and `K(G)` is clique-Helly (abbreviated **Helly** throughout).
 
+## Exact homotopy types through order 10
+
+Both \(\Delta(G)\) and \(\Delta(K(G))\) now have certified homotopy types for
+all 11,716,571 connected graphs of order 10. Combined with the earlier stages,
+this covers all 11,989,764 connected graphs of orders 1 through 10. The
+full-type follow-up supplies the 177 rows where an original type was missing.
+For all other rows, use the original census and the six-row order-9 follow-up.
+
+[Order-10 full-type results and replay instructions](followups/order10_exact_types/README.md) · [All 177 revised rows, including graph6](followups/order10_exact_types/results.tsv)
+
 ## Completed order-10 homotopy comparison audit (Phase 2)
 
 The 176 originally unresolved comparisons of the clique complexes of \(G\)

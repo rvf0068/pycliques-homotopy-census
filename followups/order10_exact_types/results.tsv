@@ -1,0 +1,178 @@
+index	graph6	htype_g	htype_kg	comparison	representative_index	proof
+1446832	I?BFvz{}w	2:1	3:1	DISTINCT		phase1_join
+1446862	I?BF~z{}w	2:2	3:4	DISTINCT		phase1_join
+1561828	I?Bfvz{}w	2:2	3:4	DISTINCT		phase1_join
+1561859	I?Bf~z{}w	2:4	3:14	DISTINCT	1561859	representative
+1565330	I?Bvvr~~o	2:7	3:37	DISTINCT	1565330	representative
+1565364	I?Bvvz{}w	2:3	3:9	DISTINCT	1565364	representative
+1565393	I?B~vrv~o	2:6	3:30	DISTINCT	1565393	representative
+1565422	I?B~vr}~o	2:4	3:16	DISTINCT	1565422	representative
+1565424	I?B~vr~~o	2:8	3:52	DISTINCT	1565424	representative
+6068715	I?brvrw|w	1:1	1:1	EQUIVALENT		phase1_join
+6074303	I?bvbrw|w	1:1	1:1	EQUIVALENT		phase1_join
+6076097	I?bvvrw^w	1:1	1:1	EQUIVALENT		phase1_join
+7739020	I?qvfrw|w	2:1	3:1	DISTINCT		phase1_join
+7740409	I?qvvrw|w	2:2	3:4	DISTINCT		phase1_join
+7747781	I?q~frw|w	2:1	3:1	DISTINCT		phase1_join
+7749135	I?r@`b~~o	1:1;2:2	1:1;3:2	DISTINCT		suspension_of_two_squares
+7923536	I?rf^Zn~o	3:1	7:1	DISTINCT		phase1_join
+7923665	I?rf^Z~~o	1:1;3:1	1:1;7:1	DISTINCT	7923665	representative
+7934694	I?rffrw|w	2:1	3:1	DISTINCT		phase1_join
+7935876	I?rfvrw|w	2:2	3:4	DISTINCT		phase1_join
+7944612	I?rnV^m|w	3:1	7:1	DISTINCT		phase1_join
+7950656	I?rvfb~~o	2:7	3:35	DISTINCT	7950656	representative
+7951115	I?rvfrw|w	2:1	3:1	DISTINCT		phase1_join
+7951450	I?rvvrw|w	2:2	3:4	DISTINCT		phase1_join
+7977194	I?zVfb~~o	2:7	3:31	DISTINCT	7977194	representative
+7977866	I?zVfrw|w	2:2	3:4	DISTINCT		phase1_join
+7988753	I?ze}z~~o	2:2;3:1	3:2;5:4;7:1	DISTINCT	7988753	representative
+7989079	I?ze~z{vw	2:1	3:1	DISTINCT		phase1_join
+7991300	I?zf^Z^~o	1:1;3:1	1:1;7:1	DISTINCT	7923665	representative
+7991302	I?zf^Znvo	3:1	7:1	DISTINCT		phase1_join
+7991303	I?zf^Zn~o	3:2	7:16	DISTINCT		phase1_join
+7991311	I?zf^Z~~o	1:1;3:2	1:1;7:16	DISTINCT	7991311	representative
+7993296	I?zf~z{vw	2:2	3:4	DISTINCT		phase1_join
+7993989	I?znfrtzw	1:1	1:1	EQUIVALENT		phase1_join
+7994188	I?znvj~~o	2:1	3:5	DISTINCT	7994188	representative
+7994353	I?zvf^{zw	1:1	1:1	EQUIVALENT		phase1_join
+7994391	I?zvfb]~o	2:3	3:7	DISTINCT	7994391	representative
+7994400	I?zvfbf~o	2:4	3:14	DISTINCT	1561859	representative
+7994419	I?zvfbm~o	2:4	3:14	DISTINCT	1561859	representative
+7994438	I?zvfbu~o	2:3	3:9	DISTINCT	1565364	representative
+7994444	I?zvfbv~o	2:6	3:30	DISTINCT	1565393	representative
+7994470	I?zvfb{~o	2:2	3:4	DISTINCT		phase1_join
+7994482	I?zvfb}~o	2:5	3:19	DISTINCT	7994482	representative
+7994484	I?zvfb~~o	2:8	3:46	DISTINCT	7994484	representative
+7994604	I?zvfnuzw	2:1	3:1	DISTINCT		phase1_join
+7994825	I?zvfz{zw	1:1	1:1	EQUIVALENT		phase1_join
+7995087	I?~vf^{zw	1:1	1:1	EQUIVALENT		phase1_join
+7995116	I?~vfbm~o	2:4	3:14	DISTINCT	1561859	representative
+7995133	I?~vfb{~o	2:3	3:9	DISTINCT	1565364	representative
+7995141	I?~vfb}~o	2:6	3:30	DISTINCT	1565393	representative
+7995143	I?~vfb~~o	2:9	3:63	DISTINCT	7995143	representative
+7995295	I?~vfz{zw	1:1;2:1	1:1;3:1	DISTINCT	7995295	representative
+7995314	I?~vf~}~_	2:12	3:96	DISTINCT	7995314	representative
+7995358	I?~vvzuzw	2:1	2:1	EQUIVALENT		phase1_join
+10043465	ICReuz[NW	1:1;2:2	1:1;3:2	DISTINCT	10043465	representative
+10223998	ICXnRn~~o	2:1;3:1	3:1;7:1	DISTINCT	10223998	representative
+10351134	ICZJlq}~_	1:1;2:2	1:1;3:2	DISTINCT	10043465	representative
+10352232	ICZJlr}~_	1:1;2:2	1:1;3:2	DISTINCT	10043465	representative
+10362063	ICZJnq}~_	1:1;2:2	1:1;3:2	DISTINCT	10362063	representative
+10362424	ICZJnr}~_	1:1;2:2	1:1;3:2	DISTINCT	10362424	representative
+10419379	ICZLn`zyo	1:1;2:2	1:1;2:1;3:1	DISTINCT	10419379	representative
+10566451	ICZbmr}~_	1:1;2:2	1:1;3:2	DISTINCT	10566451	representative
+10578910	ICZb~Z~~o	2:1;3:1	3:1;7:1	DISTINCT	10578910	representative
+10579490	ICZb~z{^w	2:1	3:1	DISTINCT		phase1_join
+10614377	ICZf^Zn~o	3:1	7:1	DISTINCT		phase1_join
+10614426	ICZf^Z~~o	3:1	7:1	DISTINCT		phase1_join
+10620745	ICZf~z{^w	2:2	3:4	DISTINCT		phase1_join
+10628115	ICZnV^mxw	3:1	7:1	DISTINCT		phase1_join
+10628118	ICZnV^m|w	3:1	7:1	DISTINCT		phase1_join
+11125947	ICpejr|~O	1:1;2:2	1:1;3:2	DISTINCT	11125947	representative
+11373040	ICr]u~]xw	3:1	7:1	DISTINCT		phase1_join
+11373406	ICr^vr~~o	2:1	3:1	DISTINCT		phase1_join
+11458056	ICrf^Zn~o	3:1	7:1	DISTINCT		phase1_join
+11458078	ICrf^Z~~o	3:1	7:1	DISTINCT		phase1_join
+11473083	ICrnV^m|w	3:1	7:1	DISTINCT		phase1_join
+11486067	ICr~vr~~o	2:2	3:4	DISTINCT		phase1_join
+11488987	ICvV^Z^~o	3:1	7:1	DISTINCT		phase1_join
+11488990	ICvV^Zn~o	2:1;3:1	3:1;5:2;7:1	DISTINCT	11488990	representative
+11489009	ICvV^Z~~o	2:1;3:1	3:1;5:2;7:1	DISTINCT	11488990	representative
+11519684	ICxu}z~~o	2:1;3:1	3:1;5:1	DISTINCT	11519684	representative
+11519946	ICxu~z{vw	2:1	3:1	DISTINCT		phase1_join
+11522274	ICxvFV}~_	2:6	2:1;3:17	DISTINCT	11522274	representative
+11522704	ICxvF^}~_	2:7	2:1;3:24	DISTINCT	11522704	representative
+11523965	ICxvFv}~_	2:6	2:1;3:17	DISTINCT	11523965	representative
+11524199	ICxvF~}~_	2:8	2:2;3:24	DISTINCT	11524199	representative
+11525976	ICxvZz~~o	2:1;3:1	3:1;7:1	DISTINCT	11525976	representative
+11529569	ICxvf^mzw	1:1	1:1	EQUIVALENT		phase1_join
+11531166	ICxv~z{vw	2:2	3:4	DISTINCT		phase1_join
+11531169	ICxv~z{zw	2:2	3:4	DISTINCT		phase1_join
+11535601	ICzbzz~~o	2:3;3:1	3:9;5:4;7:1	DISTINCT	11535601	representative
+11536133	ICze~z{vw	2:1	3:1	DISTINCT		phase1_join
+11537915	ICzfZzn~o	3:1	7:1	DISTINCT		phase1_join
+11537931	ICzfZz~~o	2:1;3:1	3:3;7:1	DISTINCT	11537931	representative
+11537969	ICzf^X~~o	1:1;3:1	1:1;7:1	DISTINCT	7923665	representative
+11537976	ICzf^Z^~o	3:1	7:1	DISTINCT		phase1_join
+11537978	ICzf^Zn^o	1:1;3:1	1:1;7:1	DISTINCT	11537978	representative
+11537981	ICzf^Zn~o	3:2	7:16	DISTINCT		phase1_join
+11537990	ICzf^Z~~o	3:2	7:16	DISTINCT		phase1_join
+11540481	ICzf~z{^w	2:4	3:14	DISTINCT	1561859	representative
+11540485	ICzf~z{vw	2:2	3:4	DISTINCT		phase1_join
+11541688	ICzvb|}^w	1:1	1:1	EQUIVALENT		phase1_join
+11541696	ICzvb|}zw	2:2	3:4	DISTINCT		phase1_join
+11542042	ICzvf\}zw	2:1	3:1	DISTINCT		phase1_join
+11581697	IEht|z~~o	3:1	5:1	DISTINCT		phase1_join
+11619731	IEit^Z~~o	2:1;3:1	3:1;7:1	DISTINCT	11619731	representative
+11620761	IEiv^Z~~o	2:2;3:1	3:4;5:2;7:1	DISTINCT	11620761	representative
+11621077	IEiv^z{zw	2:1	3:1	DISTINCT		phase1_join
+11622502	IEiv~z{zw	2:2	3:4	DISTINCT		phase1_join
+11645069	IEjfmz~~o	2:1;3:1	3:1;7:1	DISTINCT	11645069	representative
+11645281	IEjfnjv~o	3:1	7:1	DISTINCT		phase1_join
+11645294	IEjfnj~~o	2:1;3:1	3:1;7:1	DISTINCT	11645294	representative
+11645378	IEjfnz{|w	2:1	3:1	DISTINCT		phase1_join
+11646048	IEjf~z{|w	2:2	3:4	DISTINCT		phase1_join
+11649918	IEjvd}}zw	2:1	3:1	DISTINCT		phase1_join
+11650014	IEjve~]zw	3:1	7:1	DISTINCT		phase1_join
+11650130	IEjvf^m|w	2:1	3:1	DISTINCT		phase1_join
+11650233	IEjvfnuxw	1:1;3:1	1:1;7:1	DISTINCT	11650233	representative
+11650234	IEjvfnuzw	3:1	7:1	DISTINCT		phase1_join
+11654858	IEnfnZ~~o	0	0	EQUIVALENT		phase1_join
+11655396	IEnf~z{|w	2:2	3:4	DISTINCT		phase1_join
+11655933	IEr]u~]~_	3:2	7:16	DISTINCT		phase1_join
+11655943	IEr]u~{}W	3:1	7:1	DISTINCT		phase1_join
+11655953	IEr]u~}~_	1:1;3:2	1:1;7:16	DISTINCT	11655953	representative
+11655970	IEr]vz{uw	1:1;3:1	1:1;7:1	DISTINCT	7923665	representative
+11655975	IEr]vz{}w	3:1	7:1	DISTINCT		phase1_join
+11656477	IEr^vr^}o	3:1	7:1	DISTINCT		phase1_join
+11656479	IEr^vr^~o	3:2	7:16	DISTINCT		phase1_join
+11656487	IEr^vrv~o	2:1	3:1	DISTINCT		phase1_join
+11656489	IEr^vrz}o	2:2;3:1	3:2;5:4;7:1	DISTINCT	11656489	representative
+11656491	IEr^vrz~o	2:1;3:1	3:1;5:2;7:1	DISTINCT	11488990	representative
+11656497	IEr^vr}~o	3:1	7:1	DISTINCT		phase1_join
+11656499	IEr^vr~~o	2:1;3:2	3:1;5:2;7:16	DISTINCT	11656499	representative
+11656524	IEr^vz{uw	1:2;3:1	1:2;7:1	DISTINCT	11656524	representative
+11656531	IEr^vz{}w	3:1	7:1	DISTINCT		phase1_join
+11657377	IErv^r~~o	2:1;3:1	3:1;5:3	DISTINCT	11657377	representative
+11657386	IErvf^m|w	2:1	3:1	DISTINCT		phase1_join
+11657741	IErvvz{}w	2:1	3:1	DISTINCT		phase1_join
+11660036	IEzf\y~~o	3:1	7:1	DISTINCT		phase1_join
+11660051	IEzf\zn~o	3:1	7:1	DISTINCT		phase1_join
+11660070	IEzf\z~~o	2:1;3:1	3:1;7:1	DISTINCT	11660070	representative
+11660103	IEzf]~{~g	2:1	3:1	DISTINCT		phase1_join
+11660147	IEzf^z}~o	2:1	3:1	DISTINCT		phase1_join
+11660403	IEzfvr^~o	2:1;3:1	3:1;5:2;7:1	DISTINCT	11488990	representative
+11660418	IEzfvrz~o	3:1	7:1	DISTINCT		phase1_join
+11660425	IEzfvr~~o	2:2;3:1	3:4;5:2;7:1	DISTINCT	11660425	representative
+11660483	IEzfvz{}w	2:2	3:4	DISTINCT		phase1_join
+11660484	IEzfvz{~W	2:1	3:1	DISTINCT		phase1_join
+11660508	IEzf~z{zw	2:2	3:4	DISTINCT		phase1_join
+11660511	IEzf~z{}w	2:4	3:14	DISTINCT	1561859	representative
+11660513	IEzf~z{~o	2:3	3:7	DISTINCT	7994391	representative
+11660879	IEznvj^~o	3:1	5:1	DISTINCT		phase1_join
+11660902	IEznvj~~o	3:1	5:3	DISTINCT	11660902	representative
+11660970	IEzvf^mzw	2:1	3:1	DISTINCT		phase1_join
+11660972	IEzvf^m|w	2:2	3:4	DISTINCT		phase1_join
+11660996	IEzvfn]zw	3:1	7:1	DISTINCT		phase1_join
+11661087	IEzvfzmzw	2:1	3:1	DISTINCT		phase1_join
+11661299	IFzfuzz~o	3:1	7:1	DISTINCT		phase1_join
+11661308	IFzfuz~~o	2:1;3:1	3:1;4:2;7:1	DISTINCT	11661308	representative
+11661319	IFzfu~{~g	2:1	3:1	DISTINCT		phase1_join
+11661343	IFzfvr^vo	1:1;2:2;3:1	1:1;3:2;5:4;7:1	DISTINCT	11661343	representative
+11661346	IFzfvr^~o	2:1;3:1	3:1;5:2;7:1	DISTINCT	11488990	representative
+11661348	IFzfvrzvo	1:1;3:1	1:1;7:1	DISTINCT	11661348	representative
+11661349	IFzfvrz}o	1:2;3:2	1:2;7:16	DISTINCT	11661349	representative
+11661351	IFzfvrz~o	3:2	7:16	DISTINCT		phase1_join
+11661358	IFzfvr}~o	2:2	3:4	DISTINCT		phase1_join
+11661360	IFzfvr~~o	2:2;3:2	3:4;5:6;7:16	DISTINCT	11661360	representative
+11661384	IFzfvz}~o	2:2	3:4	DISTINCT		phase1_join
+11661396	IFzf~z{~o	2:4	3:14	DISTINCT	1561859	representative
+11661513	IFzvvZ^~o	3:1	5:1	DISTINCT		phase1_join
+11661524	IFzvvZ~~o	3:2	5:3;6:1	DISTINCT	11661524	representative
+11670395	IQhVe^{No	1:1;2:2	1:1;3:2	DISTINCT	11670395	representative
+11708967	IQyuzz~~o	3:1	4:1	DISTINCT	11708967	representative
+11709014	IQyu}z^~o	3:1	5:1	DISTINCT		phase1_join
+11709038	IQyu}z~~o	3:1	5:1	DISTINCT		phase1_join
+11715924	IUZvfnurw	1:1;3:1	1:1;7:1	DISTINCT	11715924	representative
+11716138	IUZ~vz}}o	3:1	4:9	DISTINCT	11716138	representative
+11716425	IUzrv~}~_	2:2	3:1;4:3	DISTINCT	11716425	representative
