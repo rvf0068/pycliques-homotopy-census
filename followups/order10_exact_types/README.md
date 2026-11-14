@@ -19,7 +19,7 @@ Match the zero-based `index` and original `graph6` to the census. The columns `h
 
 ## Replay
 
-Run these commands from the root of `pycliques-homotopy-census`. The audit imports the algorithms from a separate checkout of `pycliques-project`. For the final 20 representatives it reconstructs the actual clique graph at each original McKay graph6 offset and calls `homotopy_type_with_verdict` with the benchmark limits of 64 vertices and 25,000 simplices. It checks the clique-graph order, exact sphere multiplicities, and certificate method against the JSONL table. It also replays the folds and isomorphisms for the full 177-row follow-up and compares all three output files byte for byte. The order-10 certificate job runs this same command in CI.
+Run these commands from the root of `pycliques-homotopy-census`. The audit imports the algorithms from a separate checkout of `pycliques-project`. For the final 20 representatives it reconstructs the actual clique graph at each original McKay graph6 offset and calls `homotopy_type_with_verdict` with the benchmark limits of 64 vertices and 25,000 simplices. It checks the clique-graph order, exact sphere multiplicities, and certificate method against the JSONL table. It also replays the folds and isomorphisms for the full 177-row follow-up and compares all three output files byte for byte. The [CI regression tests](../../tests/order10_exact_types/test_replay.py) run this computation once and independently check the representative transfers, the two-square suspension, and the final totals.
 
 ```sh
 git clone https://github.com/rvf0068/pycliques-project.git .deps/pycliques-order10-types

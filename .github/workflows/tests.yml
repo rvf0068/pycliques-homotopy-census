@@ -18,7 +18,7 @@ jobs:
       - name: Install the pinned monorepo packages
         run: uv sync --project .deps/pycliques-order10-types --frozen --no-dev --python 3.11
       - name: Check exact wedges, proof methods, and the exception table
-        run: .deps/pycliques-order10-types/.venv/bin/python audits/order10_exact_types.py --check
+        run: .deps/pycliques-order10-types/.venv/bin/python -m unittest discover -s tests/order10_exact_types -v
   test:
     runs-on: ubuntu-latest
     steps:
