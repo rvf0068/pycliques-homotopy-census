@@ -6,19 +6,22 @@ import argparse
 import csv
 import gzip
 import json
+import subprocess
 from collections import Counter
 from importlib.resources import files
 from pathlib import Path
 
 import networkx as nx
-from pycombtop import homotopy_type_with_verdict
-from pycombtop.recursive_wedges import recursive_wedge_certificate
+import pycombtop
+from pycliques import clique_graph
+from pycombtop import Theorem, homotopy_type_with_verdict, recursive_wedge_certificate
 
 import order10_phase1 as phase1
+import order10_phase2 as phase2
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "followups/order10_exact_types"
-UPSTREAM = "6da348bc116c3630e0d8bea88470366fe6d0fa4d"
+PIN = ROOT / "config/order10_exact_types_commit.txt"
 
 
 def require(condition, message):
@@ -30,13 +33,35 @@ def encode(spheres):
     return ";".join(f"{d}:{spheres[d]}" for d in sorted(spheres)) or "0"
 
 
-def exact_type(graph):
+def indexed_clique_graph(graph):
+    kg = clique_graph(graph)
+    # The archived fold witnesses number cliques in lexicographic order.
+    cliques = sorted(kg, key=lambda q: tuple(sorted(q)))
+    index = {q: i for i, q in enumerate(cliques)}
+    result = nx.empty_graph(len(cliques))
+    result.add_edges_from((index[q], index[r]) for q, r in kg.edges)
+    return result
+
+
+def verified_revision():
+    source = Path(pycombtop.__file__).resolve().parent
+    git = ["git", "-C", str(source)]
+    revision = subprocess.check_output([*git, "rev-parse", "HEAD"], text=True).strip()
+    require(
+        revision == PIN.read_text().strip(),
+        "Imported pycombtop differs from the follow-up pin",
+    )
+    subprocess.run([*git, "diff", "--quiet", "HEAD", "--", "."], check=True)
+    return revision
+
+
+def exact_verdict(graph, index):
     verdict = homotopy_type_with_verdict(graph, max_vertices=64, max_simplices=25000)
     require(
         verdict.is_exact and not verdict.is_limited,
-        "Missing exact homotopy certificate",
+        f"Missing exact homotopy certificate at {index}",
     )
-    return encode(verdict.wedge.spheres)
+    return verdict
 
 
 def exception_rows():
@@ -69,6 +94,7 @@ def exception_rows():
 
 
 def generate():
+    revision = verified_revision()
     original = exception_rows()
     unresolved, _ = phase1.original_unresolved()
     pending = {int(row["index"]) for row in unresolved}
@@ -96,23 +122,56 @@ def generate():
         set(cases) == pending and len(cases) == len(certs["cases"]),
         "Phase-1 rows differ",
     )
+    # The earlier spherical-link and contractible-carrier follow-ups settled
+    # 11670395 and 10223998, respectively.
+    _, _, journal = phase2.load_inputs()
+    previously_certified = {11670395, 10223998}
+    nonexact = {r["representative_index"] for r in journal if r["status"] != "EXACT"}
+    residual = nonexact - previously_certified
+    require(
+        previously_certified <= nonexact and len(residual) == 20,
+        "Wrong final benchmark cases",
+    )
+    methods = {
+        Theorem.RECURSIVE_VERTEX_STAR: "vertex_star",
+        Theorem.INTEGRAL_MORSE: "morse",
+        Theorem.BIPARTITE_SHORE + Theorem.INTEGRAL_MORSE: "morse_shore",
+    }
+    remaining = {}
     cores = {}
     for i, case in cases.items():
         require(
             case["graph6"] == original[i]["graph6"], f"Phase-1 graph6 differs at {i}"
         )
         graph = nx.from_graph6_bytes(original[i]["graph6"].encode("ascii"))
-        cores[i] = phase1.replay_folds(
-            phase1.reconstruct_clique_graph(graph), case["folds"]
-        )
+        kg = indexed_clique_graph(graph)
+        cores[i] = phase1.replay_folds(kg, case["folds"])
         require(
             phase1.graph6(cores[i]) == case["core_graph6"], f"Incorrect core at {i}"
         )
+        if i in residual:
+            # Classify the actual K(G) at the original McKay offset.
+            verdict = exact_verdict(kg, i)
+            require(
+                verdict.reason in methods, f"Unexpected proof at {i}: {verdict.reason}"
+            )
+            remaining[i] = dict(
+                index=i,
+                graph6=original[i]["graph6"],
+                k_order=len(kg),
+                method=methods[verdict.reason],
+                spheres=dict(sorted(verdict.wedge.spheres.items())),
+            )
 
     types = {}
     representatives = {}
     groups = certs["groups"]
     require(len(groups) == 60, "Wrong number of representatives")
+    group_ids = {g["representative_index"] for g in groups}
+    require(
+        set(remaining) == residual and residual <= group_ids,
+        "Residual cases do not match the verified representatives",
+    )
     for group in groups:
         rep = group["representative_index"]
         rep_graph = cores[rep]
@@ -120,9 +179,16 @@ def generate():
             group["core_graph6"] == phase1.graph6(rep_graph),
             f"Wrong representative {rep}",
         )
-        indexed = nx.from_graph6_bytes(group["core_graph6"].encode("ascii"))
-        proof = recursive_wedge_certificate(indexed)
-        wedge = encode(proof.spheres) if proof is not None else exact_type(indexed)
+        if rep in remaining:
+            # The recorded folds transfer the type of the original K(G) to its core.
+            wedge = encode(remaining[rep]["spheres"])
+        else:
+            indexed = nx.from_graph6_bytes(group["core_graph6"].encode("ascii"))
+            proof = recursive_wedge_certificate(indexed)
+            spheres = (
+                proof.spheres if proof else exact_verdict(indexed, rep).wedge.spheres
+            )
+            wedge = encode(spheres)
         for i in group["members"]:
             require(
                 i not in representatives and cases[i]["representative_index"] == rep,
@@ -146,9 +212,8 @@ def generate():
         require(
             exact and exact == cases[i]["exact_kg"], f"Missing structural proof for {i}"
         )
-        types[i] = exact[
-            "betti"
-        ]  # This is the exact sphere vector of the verified join.
+        types[i] = encode(exact_verdict(cores[i], i).wedge.spheres)
+        require(types[i] == exact["betti"], f"Classifier and join proof differ at {i}")
 
     # The separate Betti-only G is the suspension of two disjoint squares.
     special = original[7749135]
@@ -167,10 +232,12 @@ def generate():
         "Incorrect two-square suspension",
     )
     require(
-        exact_type(graph) == "1:1;2:2", "Suspension formula and classifier disagree"
+        encode(exact_verdict(graph, 7749135).wedge.spheres) == "1:1;2:2",
+        "Suspension formula and classifier disagree",
     )
     require(
-        exact_type(phase1.reconstruct_clique_graph(graph)) == special["htype_kg"],
+        encode(exact_verdict(indexed_clique_graph(graph), 7749135).wedge.spheres)
+        == special["htype_kg"],
         "Original clique-graph type differs for the two-square suspension",
     )
     with (ROOT / "followups/order10_phase2/results.tsv").open(newline="") as earlier:
@@ -238,9 +305,12 @@ def generate():
         distinct=baseline["comparison_DISTINCT"] + delta["DISTINCT"],
         verified_representatives=len(groups),
         original_nonexact_rows=len(rows),
-        pycliques_project_commit=UPSTREAM,
+        pycliques_project_commit=revision,
     )
     return {
+        "remaining_types.jsonl": "".join(
+            json.dumps(remaining[i]) + "\n" for i in sorted(remaining)
+        ).encode(),
         "results.tsv": phase1.tsv_bytes(rows, list(rows[0])),
         "summary.json": (json.dumps(summary, indent=2) + "\n").encode(),
     }
@@ -262,7 +332,8 @@ if __name__ == "__main__":
                 f"Full-type audit differs: {name}",
             )
         print(
-            "All 177 order-10 full-type records and their summary match the committed files."
+            "Verified the exact wedges and proof methods for all 20 residual K(G). "
+            "All 177 order-10 rows and their summary match the committed files."
         )
     else:
         phase1.publish(OUTPUT, output, check=False)

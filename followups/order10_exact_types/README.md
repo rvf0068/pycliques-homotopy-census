@@ -15,15 +15,15 @@ Match the zero-based `index` and original `graph6` to the census. The columns `h
 * For `11661524`, the bipartite complement reduces the problem to a suspension. The smaller complex has a Morse model with one vertex, three 4-cells and one 5-cell. The boundary of the 5-cell is zero over the integers, giving three 5-spheres and a 6-sphere after suspension. For `11716425`, the clique graph itself has a Morse model with one vertex, one 3-cell and three 4-cells, again with zero integral boundary. For both models the lower positive dimension is at least two, so Hurewicz identifies the attaching classes with their degrees.
 * The remaining input graph, index `7749135`, has nonadjacent vertices 8 and 9 adjacent to each of the other eight vertices. Those eight vertices induce two disjoint four-cycles. Consequently the flag complex is the unreduced suspension of two disjoint circles. Each circle contributes a 2-sphere, and the two components contribute one circle. Thus \(\Delta(G)\simeq S^1\vee S^2\vee S^2\). Its original clique-graph verdict was already exact.
 
-[Algorithm and regression tests](https://github.com/rvf0068/pycliques-project/commit/6da348bc116c3630e0d8bea88470366fe6d0fa4d) · [Twenty new clique-graph types](https://github.com/rvf0068/pycliques-project/blob/6da348bc116c3630e0d8bea88470366fe6d0fa4d/research/results/order10_remaining_types.jsonl)
+[Twenty residual clique-graph types and their certificate methods](remaining_types.jsonl) · [Pinned pycliques-project revision](../../config/order10_exact_types_commit.txt)
 
 ## Replay
 
-Use a separate checkout of the algorithm revision. Run the following from the census repository. This replays the 177 exceptional rows and checks the corresponding source graph6 lines, folds, isomorphisms, classifications and committed result files. It also checks the certified types against the counts in the historical manifest and summary.
+Run these commands from the root of `pycliques-homotopy-census`. The audit imports the algorithms from a separate checkout of `pycliques-project`. For the final 20 representatives it reconstructs the actual clique graph at each original McKay graph6 offset and calls `homotopy_type_with_verdict` with the benchmark limits of 64 vertices and 25,000 simplices. It checks the clique-graph order, exact sphere multiplicities, and certificate method against the JSONL table. It also replays the folds and isomorphisms for the full 177-row follow-up and compares all three output files byte for byte. The order-10 certificate job runs this same command in CI.
 
 ```sh
-git clone https://github.com/rvf0068/pycliques-project.git ../pycliques-type-audit
-git -C ../pycliques-type-audit checkout --detach 6da348bc116c3630e0d8bea88470366fe6d0fa4d
-uv sync --project ../pycliques-type-audit --frozen --no-dev
-../pycliques-type-audit/.venv/bin/python audits/order10_exact_types.py --check
+git clone https://github.com/rvf0068/pycliques-project.git .deps/pycliques-order10-types
+git -C .deps/pycliques-order10-types checkout --detach "$(cat config/order10_exact_types_commit.txt)"
+uv sync --project .deps/pycliques-order10-types --frozen --no-dev --python 3.11
+.deps/pycliques-order10-types/.venv/bin/python audits/order10_exact_types.py --check
 ```
