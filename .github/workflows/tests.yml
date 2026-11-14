@@ -1,6 +1,24 @@
 name: Small census and validation
 on: [push, pull_request]
 jobs:
+  order10-exact-types:
+    name: Replay the order-10 homotopy certificates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: upstream
+        name: Read the follow-up algorithm revision
+        run: echo "revision=$(cat config/order10_exact_types_commit.txt)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          repository: rvf0068/pycliques-project
+          ref: ${{ steps.upstream.outputs.revision }}
+          path: .deps/pycliques-order10-types
+      - uses: astral-sh/setup-uv@v4
+      - name: Install the pinned monorepo packages
+        run: uv sync --project .deps/pycliques-order10-types --frozen --no-dev --python 3.11
+      - name: Check exact wedges, proof methods, and the exception table
+        run: .deps/pycliques-order10-types/.venv/bin/python -m unittest discover -s tests/order10_exact_types -v
   test:
     runs-on: ubuntu-latest
     steps:

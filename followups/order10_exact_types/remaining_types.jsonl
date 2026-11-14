@@ -1,0 +1,20 @@
+{"index": 7988753, "graph6": "I?ze}z~~o", "k_order": 24, "method": "vertex_star", "spheres": {"3": 2, "5": 4, "7": 1}}
+{"index": 7991311, "graph6": "I?zf^Z~~o", "k_order": 26, "method": "vertex_star", "spheres": {"1": 1, "7": 16}}
+{"index": 7995314, "graph6": "I?~vf~}~_", "k_order": 36, "method": "vertex_star", "spheres": {"3": 96}}
+{"index": 10578910, "graph6": "ICZb~Z~~o", "k_order": 22, "method": "vertex_star", "spheres": {"3": 1, "7": 1}}
+{"index": 11525976, "graph6": "ICxvZz~~o", "k_order": 22, "method": "vertex_star", "spheres": {"3": 1, "7": 1}}
+{"index": 11535601, "graph6": "ICzbzz~~o", "k_order": 26, "method": "vertex_star", "spheres": {"3": 9, "5": 4, "7": 1}}
+{"index": 11619731, "graph6": "IEit^Z~~o", "k_order": 22, "method": "vertex_star", "spheres": {"3": 1, "7": 1}}
+{"index": 11620761, "graph6": "IEiv^Z~~o", "k_order": 24, "method": "vertex_star", "spheres": {"3": 4, "5": 2, "7": 1}}
+{"index": 11645069, "graph6": "IEjfmz~~o", "k_order": 22, "method": "vertex_star", "spheres": {"3": 1, "7": 1}}
+{"index": 11645294, "graph6": "IEjfnj~~o", "k_order": 24, "method": "vertex_star", "spheres": {"3": 1, "7": 1}}
+{"index": 11655953, "graph6": "IEr]u~}~_", "k_order": 26, "method": "vertex_star", "spheres": {"1": 1, "7": 16}}
+{"index": 11656489, "graph6": "IEr^vrz}o", "k_order": 24, "method": "vertex_star", "spheres": {"3": 2, "5": 4, "7": 1}}
+{"index": 11656499, "graph6": "IEr^vr~~o", "k_order": 28, "method": "vertex_star", "spheres": {"3": 1, "5": 2, "7": 16}}
+{"index": 11660070, "graph6": "IEzf\\z~~o", "k_order": 24, "method": "vertex_star", "spheres": {"3": 1, "7": 1}}
+{"index": 11660425, "graph6": "IEzfvr~~o", "k_order": 26, "method": "vertex_star", "spheres": {"3": 4, "5": 2, "7": 1}}
+{"index": 11661343, "graph6": "IFzfvr^vo", "k_order": 25, "method": "vertex_star", "spheres": {"1": 1, "3": 2, "5": 4, "7": 1}}
+{"index": 11661349, "graph6": "IFzfvrz}o", "k_order": 27, "method": "vertex_star", "spheres": {"1": 2, "7": 16}}
+{"index": 11661360, "graph6": "IFzfvr~~o", "k_order": 30, "method": "vertex_star", "spheres": {"3": 4, "5": 6, "7": 16}}
+{"index": 11661524, "graph6": "IFzvvZ~~o", "k_order": 30, "method": "morse_shore", "spheres": {"5": 3, "6": 1}}
+{"index": 11716425, "graph6": "IUzrv~}~_", "k_order": 21, "method": "morse", "spheres": {"3": 1, "4": 3}}
